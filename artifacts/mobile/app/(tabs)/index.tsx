@@ -5,7 +5,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import {
-  Image,
   Platform,
   ScrollView,
   StyleSheet,
@@ -34,11 +33,27 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <Image
-          source={require("../../assets/images/logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <View>
+          <Text
+            style={[
+              styles.greeting,
+              {
+                color: colors.mutedForeground,
+                fontFamily: "Inter_400Regular",
+              },
+            ]}
+          >
+            Good morning
+          </Text>
+          <Text
+            style={[
+              styles.name,
+              { color: colors.foreground, fontFamily: "Inter_700Bold" },
+            ]}
+          >
+            Alex
+          </Text>
+        </View>
         <TouchableOpacity onPress={() => router.push("/connect")}>
           <View
             style={[
@@ -54,20 +69,11 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      <Text
-        style={[
-          styles.greeting,
-          { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
-        ]}
-      >
-        Good morning, Alex
-      </Text>
-
       <View style={styles.ringSection}>
         <View
           style={[
             styles.ringGlow,
-            { backgroundColor: colors.primary + "14" },
+            { backgroundColor: colors.primary + "18" },
           ]}
         />
         <EnergyRing
@@ -80,7 +86,7 @@ export default function HomeScreen() {
             styles.ringSubtext,
             {
               color: colors.mutedForeground,
-              fontFamily: "Figtree_400Regular",
+              fontFamily: "Inter_400Regular",
             },
           ]}
         >
@@ -99,7 +105,7 @@ export default function HomeScreen() {
           <Text
             style={[
               styles.statValue,
-              { color: colors.foreground, fontFamily: "Parkinsans_700Bold" },
+              { color: colors.foreground, fontFamily: "Inter_700Bold" },
             ]}
           >
             {currentUsage.toFixed(1)}
@@ -109,7 +115,7 @@ export default function HomeScreen() {
               styles.statLabel,
               {
                 color: colors.mutedForeground,
-                fontFamily: "Figtree_400Regular",
+                fontFamily: "Inter_400Regular",
               },
             ]}
           >
@@ -126,7 +132,7 @@ export default function HomeScreen() {
           <Text
             style={[
               styles.statValue,
-              { color: colors.foreground, fontFamily: "Parkinsans_700Bold" },
+              { color: colors.foreground, fontFamily: "Inter_700Bold" },
             ]}
           >
             ${moneySaved.toFixed(0)}
@@ -136,7 +142,7 @@ export default function HomeScreen() {
               styles.statLabel,
               {
                 color: colors.mutedForeground,
-                fontFamily: "Figtree_400Regular",
+                fontFamily: "Inter_400Regular",
               },
             ]}
           >
@@ -149,11 +155,11 @@ export default function HomeScreen() {
             { backgroundColor: colors.card, borderColor: colors.border },
           ]}
         >
-          <Ionicons name="leaf-outline" size={16} color="#6B9E8A" />
+          <Ionicons name="leaf-outline" size={16} color="#22C55E" />
           <Text
             style={[
               styles.statValue,
-              { color: colors.foreground, fontFamily: "Parkinsans_700Bold" },
+              { color: colors.foreground, fontFamily: "Inter_700Bold" },
             ]}
           >
             {carbonOffset.toFixed(0)}
@@ -163,7 +169,7 @@ export default function HomeScreen() {
               styles.statLabel,
               {
                 color: colors.mutedForeground,
-                fontFamily: "Figtree_400Regular",
+                fontFamily: "Inter_400Regular",
               },
             ]}
           >
@@ -184,7 +190,7 @@ export default function HomeScreen() {
               styles.actionLabel,
               {
                 color: colors.primaryForeground,
-                fontFamily: "Figtree_600SemiBold",
+                fontFamily: "Inter_600SemiBold",
               },
             ]}
           >
@@ -209,7 +215,7 @@ export default function HomeScreen() {
               styles.actionLabel,
               {
                 color: colors.foreground,
-                fontFamily: "Figtree_600SemiBold",
+                fontFamily: "Inter_600SemiBold",
               },
             ]}
           >
@@ -222,7 +228,7 @@ export default function HomeScreen() {
         <Text
           style={[
             styles.sectionTitle,
-            { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
+            { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
           ]}
         >
           Active Now
@@ -231,7 +237,7 @@ export default function HomeScreen() {
           <Text
             style={[
               styles.seeAll,
-              { color: colors.primary, fontFamily: "Figtree_500Medium" },
+              { color: colors.primary, fontFamily: "Inter_500Medium" },
             ]}
           >
             See all
@@ -260,7 +266,7 @@ export default function HomeScreen() {
                 styles.chipName,
                 {
                   color: colors.foreground,
-                  fontFamily: "Figtree_500Medium",
+                  fontFamily: "Inter_500Medium",
                 },
               ]}
               numberOfLines={1}
@@ -272,7 +278,7 @@ export default function HomeScreen() {
                 styles.chipPower,
                 {
                   color: colors.mutedForeground,
-                  fontFamily: "Figtree_400Regular",
+                  fontFamily: "Inter_400Regular",
                 },
               ]}
             >
@@ -288,7 +294,7 @@ export default function HomeScreen() {
         <Text
           style={[
             styles.sectionTitle,
-            { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
+            { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
           ]}
         >
           Quick Access
@@ -300,11 +306,11 @@ export default function HomeScreen() {
           onPress={() => router.push("/thermostat")}
           activeOpacity={0.7}
         >
-          <Ionicons name="thermometer-outline" size={26} color="#87A39F" />
-          <Text style={[styles.quickTileLabel, { color: colors.foreground, fontFamily: "Figtree_500Medium" }]}>
+          <Ionicons name="thermometer-outline" size={26} color="#60A5FA" />
+          <Text style={[styles.quickTileLabel, { color: colors.foreground, fontFamily: "Inter_500Medium" }]}>
             Thermostat
           </Text>
-          <Text style={[styles.quickTileValue, { color: "#87A39F", fontFamily: "Parkinsans_700Bold" }]}>
+          <Text style={[styles.quickTileValue, { color: "#60A5FA", fontFamily: "Inter_700Bold" }]}>
             22°C
           </Text>
         </TouchableOpacity>
@@ -313,11 +319,11 @@ export default function HomeScreen() {
           onPress={() => router.push("/schedule")}
           activeOpacity={0.7}
         >
-          <Ionicons name="calendar-outline" size={26} color={colors.accent} />
-          <Text style={[styles.quickTileLabel, { color: colors.foreground, fontFamily: "Figtree_500Medium" }]}>
+          <Ionicons name="calendar-outline" size={26} color="#A78BFA" />
+          <Text style={[styles.quickTileLabel, { color: colors.foreground, fontFamily: "Inter_500Medium" }]}>
             Schedule
           </Text>
-          <Text style={[styles.quickTileValue, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}>
+          <Text style={[styles.quickTileValue, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
             3 active
           </Text>
         </TouchableOpacity>
@@ -326,11 +332,11 @@ export default function HomeScreen() {
           onPress={() => router.push("/automation")}
           activeOpacity={0.7}
         >
-          <Ionicons name="git-merge-outline" size={26} color="#6B9E8A" />
-          <Text style={[styles.quickTileLabel, { color: colors.foreground, fontFamily: "Figtree_500Medium" }]}>
+          <Ionicons name="git-merge-outline" size={26} color="#34D399" />
+          <Text style={[styles.quickTileLabel, { color: colors.foreground, fontFamily: "Inter_500Medium" }]}>
             Automation
           </Text>
-          <Text style={[styles.quickTileValue, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}>
+          <Text style={[styles.quickTileValue, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
             4 rules on
           </Text>
         </TouchableOpacity>
@@ -339,11 +345,11 @@ export default function HomeScreen() {
           onPress={() => router.push("/recommendations")}
           activeOpacity={0.7}
         >
-          <Ionicons name="trending-down-outline" size={26} color={colors.primary} />
-          <Text style={[styles.quickTileLabel, { color: colors.foreground, fontFamily: "Figtree_500Medium" }]}>
+          <Ionicons name="trending-down-outline" size={26} color={colors.accent} />
+          <Text style={[styles.quickTileLabel, { color: colors.foreground, fontFamily: "Inter_500Medium" }]}>
             Savings
           </Text>
-          <Text style={[styles.quickTileValue, { color: colors.primary, fontFamily: "Parkinsans_700Bold" }]}>
+          <Text style={[styles.quickTileValue, { color: colors.accent, fontFamily: "Inter_700Bold" }]}>
             $93/mo
           </Text>
         </TouchableOpacity>
@@ -359,17 +365,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingBottom: 4,
+    paddingBottom: 8,
   },
-  logo: {
-    width: 150,
-    height: 44,
-  },
-  greeting: {
-    fontSize: 13,
-    paddingHorizontal: 20,
-    marginBottom: 4,
-  },
+  greeting: { fontSize: 13 },
+  name: { fontSize: 26, marginTop: 2 },
   headerBtn: {
     width: 40,
     height: 40,
@@ -380,7 +379,7 @@ const styles = StyleSheet.create({
   },
   ringSection: {
     alignItems: "center",
-    paddingVertical: 16,
+    paddingVertical: 20,
     position: "relative",
   },
   ringGlow: {
@@ -388,7 +387,7 @@ const styles = StyleSheet.create({
     width: 240,
     height: 240,
     borderRadius: 120,
-    top: 6,
+    top: 10,
   },
   ringSubtext: { marginTop: 12, fontSize: 13 },
   statsRow: {

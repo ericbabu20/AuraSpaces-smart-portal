@@ -12,10 +12,10 @@ interface DeviceCardProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  climate: "#87A39F",
-  lighting: "#C4A44A",
-  appliance: "#A88864",
-  ev: "#6B9E8A",
+  climate: "#60A5FA",
+  lighting: "#FBBF24",
+  appliance: "#A78BFA",
+  ev: "#34D399",
 };
 
 export default function DeviceCard({
@@ -43,8 +43,10 @@ export default function DeviceCard({
       style={[
         styles.card,
         {
-          backgroundColor: device.isOn ? colors.card : colors.muted + "80",
-          borderColor: device.isOn ? categoryColor + "50" : colors.border,
+          backgroundColor: device.isOn
+            ? colors.card
+            : colors.card + "AA",
+          borderColor: device.isOn ? categoryColor + "40" : colors.border,
         },
       ]}
     >
@@ -70,7 +72,7 @@ export default function DeviceCard({
             styles.name,
             {
               color: device.isOn ? colors.foreground : colors.mutedForeground,
-              fontFamily: "Figtree_600SemiBold",
+              fontFamily: "Inter_600SemiBold",
             },
           ]}
           numberOfLines={1}
@@ -82,7 +84,7 @@ export default function DeviceCard({
             styles.room,
             {
               color: colors.mutedForeground,
-              fontFamily: "Figtree_400Regular",
+              fontFamily: "Inter_400Regular",
             },
           ]}
         >

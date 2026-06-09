@@ -6,18 +6,18 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mobile",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#EEE7D2"
+      "backgroundColor": "#0D1117"
     },
     "ios": {
       "supportsTablet": false
     },
     "android": {
-      "backgroundColor": "#EEE7D2"
+      "backgroundColor": "#0D1117"
     },
     "web": {
       "favicon": "./assets/images/icon.png"
