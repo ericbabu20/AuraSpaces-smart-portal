@@ -28,7 +28,7 @@ export default function HomeScreen() {
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={{
         paddingTop: topPad,
-        paddingBottom: Platform.OS === "web" ? 120 : 100,
+        paddingBottom: Platform.OS === "web" ? 120 : Platform.OS === "ios" ? 100 : insets.bottom + 24,
       }}
       showsVerticalScrollIndicator={false}
     >

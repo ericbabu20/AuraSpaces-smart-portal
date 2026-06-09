@@ -77,7 +77,7 @@ export default function ActivityScreen() {
         scrollEnabled={!!activity.length}
         contentContainerStyle={{
           paddingTop: topPad,
-          paddingBottom: Platform.OS === "web" ? 120 : 100,
+          paddingBottom: Platform.OS === "web" ? 120 : Platform.OS === "ios" ? 100 : insets.bottom + 24,
         }}
         ListHeaderComponent={
           <View>
