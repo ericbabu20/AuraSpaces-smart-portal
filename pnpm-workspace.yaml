@@ -33,6 +33,42 @@ minimumReleaseAgeExclude:
   # this setting guards against does not apply to our own packages.
   - '@replit/*'
   - stripe-replit-sync
+  # Expo / React Native ecosystem — trusted publishers (Meta, Microsoft, Expo team)
+  - typescript
+  - react-native
+  - expo
+  - '@expo/*'
+  - '@expo-google-fonts/*'
+  - '@react-native-async-storage/async-storage'
+  - '@types/react'
+  - '@types/react-dom'
+  - 'babel-plugin-react-compiler'
+  - '@ungap/structured-clone'
+  - '@stardazed/streams-text-encoding'
+  - 'expo-blur'
+  - 'expo-constants'
+  - 'expo-font'
+  - 'expo-glass-effect'
+  - 'expo-haptics'
+  - 'expo-image'
+  - 'expo-image-picker'
+  - 'expo-linear-gradient'
+  - 'expo-linking'
+  - 'expo-location'
+  - 'expo-router'
+  - 'expo-splash-screen'
+  - 'expo-status-bar'
+  - 'expo-symbols'
+  - 'expo-system-ui'
+  - 'expo-web-browser'
+  - 'react-native-gesture-handler'
+  - 'react-native-keyboard-controller'
+  - 'react-native-reanimated'
+  - 'react-native-safe-area-context'
+  - 'react-native-screens'
+  - 'react-native-svg'
+  - 'react-native-web'
+  - 'react-native-worklets'
 
 packages:
   - artifacts/*

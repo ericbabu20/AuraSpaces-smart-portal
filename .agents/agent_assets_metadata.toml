@@ -1,0 +1,14 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "QG62xdAVBZxs0VhKba5Cs"
+uri = "file://artifacts/mobile/assets/images/icon.png"
+type = "image"
+title = "aura spaces app icon"
+
+[[generated]]
+id = "c5Kt3lI-XR2Ooz_LM4SgU"
+uri = "file://artifacts/mobile/assets/images/splash-icon.png"
+type = "image"
+title = "aura spaces splash"

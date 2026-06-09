@@ -1,0 +1,1 @@
+- [Expo package install fix](expo-install-fix.md) — package-firewall returns 502 for expo/react-native packages; public registry override in .npmrc is required
