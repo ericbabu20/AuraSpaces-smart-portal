@@ -25,8 +25,8 @@ export default function EnergyRing({
     progress > 0.8
       ? colors.destructive
       : progress > 0.6
-        ? colors.accent
-        : colors.primary;
+        ? colors.primary
+        : colors.secondary;
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
@@ -34,7 +34,7 @@ export default function EnergyRing({
         <Defs>
           <LinearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <Stop offset="0%" stopColor={ringColor} stopOpacity="1" />
-            <Stop offset="100%" stopColor={ringColor} stopOpacity="0.5" />
+            <Stop offset="100%" stopColor={ringColor} stopOpacity="0.55" />
           </LinearGradient>
         </Defs>
         <Circle
@@ -63,7 +63,7 @@ export default function EnergyRing({
         <Text
           style={[
             styles.value,
-            { color: colors.foreground, fontFamily: "Inter_700Bold" },
+            { color: colors.foreground, fontFamily: "Parkinsans_700Bold" },
           ]}
         >
           {currentKwh.toFixed(1)}
@@ -71,7 +71,7 @@ export default function EnergyRing({
         <Text
           style={[
             styles.unit,
-            { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+            { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
           ]}
         >
           kWh now
@@ -79,7 +79,7 @@ export default function EnergyRing({
         <Text
           style={[
             styles.percent,
-            { color: ringColor, fontFamily: "Inter_600SemiBold" },
+            { color: ringColor, fontFamily: "Figtree_600SemiBold" },
           ]}
         >
           {Math.round(progress * 100)}%

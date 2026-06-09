@@ -1,10 +1,15 @@
 import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-  useFonts,
-} from "@expo-google-fonts/inter";
+  Figtree_400Regular,
+  Figtree_500Medium,
+  Figtree_600SemiBold,
+  Figtree_700Bold,
+  useFonts as useFigtreeFonts,
+} from "@expo-google-fonts/figtree";
+import {
+  Parkinsans_600SemiBold,
+  Parkinsans_700Bold,
+  useFonts as useParkinsansFonts,
+} from "@expo-google-fonts/parkinsans";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -18,7 +23,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { EnergyProvider } from "@/context/EnergyContext";
 
 SplashScreen.preventAutoHideAsync();
-SystemUI.setBackgroundColorAsync("#0D1117");
+SystemUI.setBackgroundColorAsync("#EEE7D2");
 
 const queryClient = new QueryClient();
 
@@ -26,11 +31,12 @@ function RootLayoutNav() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: "#0D1117" },
-        headerTintColor: "#E6EDF3",
+        headerStyle: { backgroundColor: "#EEE7D2" },
+        headerTintColor: "#2C2B26",
         headerShadowVisible: false,
         headerBackTitle: "Back",
-        contentStyle: { backgroundColor: "#0D1117" },
+        headerTitleStyle: { fontFamily: "Figtree_600SemiBold", color: "#2C2B26" },
+        contentStyle: { backgroundColor: "#EEE7D2" },
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -51,12 +57,20 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
+  const [figtreeLoaded, figtreeError] = useFigtreeFonts({
+    Figtree_400Regular,
+    Figtree_500Medium,
+    Figtree_600SemiBold,
+    Figtree_700Bold,
   });
+
+  const [parkinsansLoaded, parkinsansError] = useParkinsansFonts({
+    Parkinsans_600SemiBold,
+    Parkinsans_700Bold,
+  });
+
+  const fontsLoaded = figtreeLoaded && parkinsansLoaded;
+  const fontError = figtreeError || parkinsansError;
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
