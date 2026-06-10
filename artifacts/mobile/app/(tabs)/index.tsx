@@ -17,11 +17,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { currentUsage, usagePercent, moneySaved, carbonOffset, devices } =
-    useEnergy();
+  const {
+    currentUsage,
+    moneySaved,
+    carbonOffset,
+    devices,
+    electricityToday,
+    gasToday,
+    isSampleData,
+  } = useEnergy();
 
   const activeDevices = devices.filter((d) => d.isOn);
   const topPad = Platform.OS === "web" ? 67 : insets.top + 8;
+  const elecKwh = electricityToday ?? currentUsage;
+  const elecPercent = Math.min(elecKwh / 7.4, 1);
 
   return (
     <ScrollView
@@ -76,11 +85,7 @@ export default function HomeScreen() {
             { backgroundColor: colors.primary + "18" },
           ]}
         />
-        <EnergyRing
-          progress={usagePercent}
-          currentKwh={currentUsage}
-          size={210}
-        />
+        <EnergyRing progress={elecPercent} currentKwh={elecKwh} size={210} />
         <Text
           style={[
             styles.ringSubtext,
@@ -90,8 +95,21 @@ export default function HomeScreen() {
             },
           ]}
         >
-          of 7.4 kWh daily target
+          electricity · of 7.4 kWh daily target
         </Text>
+        {isSampleData ? (
+          <Text
+            style={[
+              styles.sampleNote,
+              {
+                color: colors.mutedForeground,
+                fontFamily: "Inter_400Regular",
+              },
+            ]}
+          >
+            Showing sample data — live meter data unavailable
+          </Text>
+        ) : null}
       </View>
 
       <View style={styles.statsRow}>
@@ -101,14 +119,14 @@ export default function HomeScreen() {
             { backgroundColor: colors.card, borderColor: colors.border },
           ]}
         >
-          <Ionicons name="flash" size={16} color={colors.primary} />
+          <Ionicons name="flame-outline" size={16} color={colors.accent} />
           <Text
             style={[
               styles.statValue,
               { color: colors.foreground, fontFamily: "Inter_700Bold" },
             ]}
           >
-            {currentUsage.toFixed(1)}
+            {gasToday != null ? gasToday.toFixed(1) : "—"}
           </Text>
           <Text
             style={[
@@ -119,7 +137,7 @@ export default function HomeScreen() {
               },
             ]}
           >
-            kWh today
+            kWh gas
           </Text>
         </View>
         <View
@@ -390,6 +408,7 @@ const styles = StyleSheet.create({
     top: 10,
   },
   ringSubtext: { marginTop: 12, fontSize: 13 },
+  sampleNote: { marginTop: 4, fontSize: 11 },
   statsRow: {
     flexDirection: "row",
     gap: 10,

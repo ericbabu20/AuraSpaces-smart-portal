@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: consumption
+    description: Energy consumption operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,52 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /consumption/electricity:
+    get:
+      operationId: getElectricityConsumption
+      tags: [consumption]
+      summary: Electricity consumption
+      description: Daily electricity consumption (kWh) from the Octopus Energy API
+      parameters:
+        - name: days
+          in: query
+          required: false
+          description: Number of days of history to return
+          schema:
+            type: integer
+            default: 7
+            minimum: 1
+            maximum: 31
+      responses:
+        "200":
+          description: Consumption summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsumptionSummary"
+  /consumption/gas:
+    get:
+      operationId: getGasConsumption
+      tags: [consumption]
+      summary: Gas consumption
+      description: Daily gas consumption (kWh) from the Octopus Energy API
+      parameters:
+        - name: days
+          in: query
+          required: false
+          description: Number of days of history to return
+          schema:
+            type: integer
+            default: 7
+            minimum: 1
+            maximum: 31
+      responses:
+        "200":
+          description: Consumption summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsumptionSummary"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +81,36 @@ components:
           type: string
       required:
         - status
-
+    ConsumptionPoint:
+      type: object
+      required:
+        - date
+        - consumption
+      properties:
+        date:
+          type: string
+          description: Day in YYYY-MM-DD format
+        consumption:
+          type: number
+          description: Consumption for the day in kWh
+    ConsumptionSummary:
+      type: object
+      required:
+        - fuel
+        - unit
+        - total
+        - points
+      properties:
+        fuel:
+          type: string
+          description: Fuel type, electricity or gas
+        unit:
+          type: string
+          description: Unit of measurement (kWh)
+        total:
+          type: number
+          description: Total consumption across the returned period
+        points:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConsumptionPoint"

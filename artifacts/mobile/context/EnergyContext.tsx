@@ -1,4 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  useGetElectricityConsumption,
+  useGetGasConsumption,
+} from "@workspace/api-client-react";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 export interface Device {
@@ -50,6 +54,14 @@ interface EnergyContextType {
   moneySaved: number;
   carbonOffset: number;
   weeklyData: number[];
+  electricityToday: number | null;
+  gasToday: number | null;
+  electricityWeekly: number[];
+  gasWeekly: number[];
+  weekLabels: string[];
+  consumptionLoading: boolean;
+  consumptionError: boolean;
+  isSampleData: boolean;
   thermostatTemp: number;
   setThermostatTemp: (temp: number) => void;
   thermostatMode: "cool" | "heat" | "fan" | "off";
@@ -262,7 +274,10 @@ const AUTOMATIONS: AutomationRule[] = [
   },
 ];
 
-const WEEKLY_DATA = [12.4, 9.8, 11.2, 14.6, 10.3, 8.9, 11.7];
+const SAMPLE_ELEC_WEEK = [12.4, 9.8, 11.2, 14.6, 10.3, 8.9, 11.7];
+const SAMPLE_GAS_WEEK = [28.5, 31.2, 26.8, 24.1, 33.0, 30.4, 22.6];
+const WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const FALLBACK_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function EnergyProvider({ children }: { children: React.ReactNode }) {
   const [devices, setDevices] = useState<Device[]>(INITIAL_DEVICES);
@@ -326,6 +341,40 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
     AsyncStorage.setItem("aura_thermostat_mode", mode).catch(() => {});
   };
 
+  const electricityQuery = useGetElectricityConsumption({ days: 7 });
+  const gasQuery = useGetGasConsumption({ days: 7 });
+
+  const elecPoints = electricityQuery.data?.points ?? [];
+  const gasPoints = gasQuery.data?.points ?? [];
+
+  const liveElecWeekly = elecPoints.map((p) => p.consumption);
+  const liveGasWeekly = gasPoints.map((p) => p.consumption);
+
+  const hasLiveElec = liveElecWeekly.length > 0;
+  const hasLiveGas = liveGasWeekly.length > 0;
+
+  const electricityWeekly = hasLiveElec ? liveElecWeekly : SAMPLE_ELEC_WEEK;
+  const gasWeekly = hasLiveGas ? liveGasWeekly : SAMPLE_GAS_WEEK;
+
+  const electricityToday =
+    electricityWeekly.length > 0
+      ? electricityWeekly[electricityWeekly.length - 1]
+      : null;
+  const gasToday =
+    gasWeekly.length > 0 ? gasWeekly[gasWeekly.length - 1] : null;
+
+  const basisPoints = hasLiveElec ? elecPoints : hasLiveGas ? gasPoints : [];
+  const weekLabels =
+    basisPoints.length > 0
+      ? basisPoints.map(
+          (p) => WEEKDAY[new Date(p.date + "T00:00:00Z").getUTCDay()],
+        )
+      : FALLBACK_LABELS;
+
+  const consumptionLoading = electricityQuery.isLoading || gasQuery.isLoading;
+  const consumptionError = electricityQuery.isError || gasQuery.isError;
+  const isSampleData = !hasLiveElec && !hasLiveGas;
+
   const activeDevices = devices.filter((d) => d.isOn);
   const currentUsage =
     activeDevices.reduce((sum, d) => sum + d.powerDraw, 0) / 1000;
@@ -345,7 +394,15 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
         usagePercent,
         moneySaved: 38.5,
         carbonOffset: 18.2,
-        weeklyData: WEEKLY_DATA,
+        weeklyData: electricityWeekly,
+        electricityToday,
+        gasToday,
+        electricityWeekly,
+        gasWeekly,
+        weekLabels,
+        consumptionLoading,
+        consumptionError,
+        isSampleData,
         thermostatTemp,
         setThermostatTemp,
         thermostatMode,

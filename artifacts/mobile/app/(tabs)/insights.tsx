@@ -11,9 +11,6 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const LAST_WEEK = [14.1, 12.3, 13.8, 16.2, 11.9, 10.4, 13.0];
-
 function BarChart({
   data,
   compareData,
@@ -36,7 +33,7 @@ function BarChart({
                 styles.bar,
                 {
                   height: (compareData[i] / max) * 100,
-                  backgroundColor: colors.muted,
+                  backgroundColor: colors.accent,
                   borderRadius: 4,
                 },
               ]}
@@ -112,16 +109,12 @@ function UsageByTime() {
 export default function InsightsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { weeklyData, currentUsage } = useEnergy();
+  const { electricityWeekly, gasWeekly, weekLabels } = useEnergy();
 
   const topPad = Platform.OS === "web" ? 67 : insets.top + 8;
-  const thisWeekTotal = weeklyData.reduce((a, b) => a + b, 0).toFixed(1);
-  const lastWeekTotal = LAST_WEEK.reduce((a, b) => a + b, 0).toFixed(1);
-  const savingsPercent = Math.round(
-    ((Number(lastWeekTotal) - Number(thisWeekTotal)) /
-      Number(lastWeekTotal)) *
-      100
-  );
+  const elecTotal = electricityWeekly.reduce((a, b) => a + b, 0);
+  const gasTotal = gasWeekly.reduce((a, b) => a + b, 0);
+  const combinedTotal = elecTotal + gasTotal;
 
   return (
     <ScrollView
@@ -154,7 +147,7 @@ export default function InsightsScreen() {
               { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
             ]}
           >
-            This week
+            Electricity
           </Text>
           <Text
             style={[
@@ -162,7 +155,7 @@ export default function InsightsScreen() {
               { color: colors.foreground, fontFamily: "Inter_700Bold" },
             ]}
           >
-            {thisWeekTotal} kWh
+            {elecTotal.toFixed(1)} kWh
           </Text>
         </View>
         <View
@@ -177,7 +170,7 @@ export default function InsightsScreen() {
               { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
             ]}
           >
-            Last week
+            Gas
           </Text>
           <Text
             style={[
@@ -185,7 +178,7 @@ export default function InsightsScreen() {
               { color: colors.foreground, fontFamily: "Inter_700Bold" },
             ]}
           >
-            {lastWeekTotal} kWh
+            {gasTotal.toFixed(1)} kWh
           </Text>
         </View>
         <View
@@ -200,7 +193,7 @@ export default function InsightsScreen() {
               { color: colors.primary, fontFamily: "Inter_400Regular" },
             ]}
           >
-            Change
+            Total
           </Text>
           <Text
             style={[
@@ -208,7 +201,7 @@ export default function InsightsScreen() {
               { color: colors.primary, fontFamily: "Inter_700Bold" },
             ]}
           >
-            -{savingsPercent}%
+            {combinedTotal.toFixed(0)} kWh
           </Text>
         </View>
       </View>
@@ -229,13 +222,13 @@ export default function InsightsScreen() {
             Daily Usage
           </Text>
           <View style={styles.legend}>
-            <View style={[styles.legendDot, { backgroundColor: colors.muted }]} />
-            <Text style={[styles.legendText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>Last</Text>
+            <View style={[styles.legendDot, { backgroundColor: colors.accent }]} />
+            <Text style={[styles.legendText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>Gas</Text>
             <View style={[styles.legendDot, { backgroundColor: colors.primary }]} />
-            <Text style={[styles.legendText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>This</Text>
+            <Text style={[styles.legendText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>Electricity</Text>
           </View>
         </View>
-        <BarChart data={weeklyData} compareData={LAST_WEEK} labels={DAYS} />
+        <BarChart data={electricityWeekly} compareData={gasWeekly} labels={weekLabels} />
       </View>
 
       <View

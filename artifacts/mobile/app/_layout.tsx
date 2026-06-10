@@ -16,6 +16,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import "@/lib/api";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { EnergyProvider } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
