@@ -347,14 +347,24 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
   const elecPoints = electricityQuery.data?.points ?? [];
   const gasPoints = gasQuery.data?.points ?? [];
 
-  const liveElecWeekly = elecPoints.map((p) => p.consumption);
-  const liveGasWeekly = gasPoints.map((p) => p.consumption);
+  // Align both fuels onto a single date axis so the charts always have matching
+  // series lengths and labels, regardless of per-fuel gaps.
+  const elecByDate = new Map(elecPoints.map((p) => [p.date, p.consumption]));
+  const gasByDate = new Map(gasPoints.map((p) => [p.date, p.consumption]));
+  const liveDates = [
+    ...new Set([...elecByDate.keys(), ...gasByDate.keys()]),
+  ].sort();
+  const hasLiveData = liveDates.length > 0;
 
-  const hasLiveElec = liveElecWeekly.length > 0;
-  const hasLiveGas = liveGasWeekly.length > 0;
-
-  const electricityWeekly = hasLiveElec ? liveElecWeekly : SAMPLE_ELEC_WEEK;
-  const gasWeekly = hasLiveGas ? liveGasWeekly : SAMPLE_GAS_WEEK;
+  const electricityWeekly = hasLiveData
+    ? liveDates.map((d) => elecByDate.get(d) ?? 0)
+    : SAMPLE_ELEC_WEEK;
+  const gasWeekly = hasLiveData
+    ? liveDates.map((d) => gasByDate.get(d) ?? 0)
+    : SAMPLE_GAS_WEEK;
+  const weekLabels = hasLiveData
+    ? liveDates.map((d) => WEEKDAY[new Date(d + "T00:00:00Z").getUTCDay()])
+    : FALLBACK_LABELS;
 
   const electricityToday =
     electricityWeekly.length > 0
@@ -363,17 +373,9 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
   const gasToday =
     gasWeekly.length > 0 ? gasWeekly[gasWeekly.length - 1] : null;
 
-  const basisPoints = hasLiveElec ? elecPoints : hasLiveGas ? gasPoints : [];
-  const weekLabels =
-    basisPoints.length > 0
-      ? basisPoints.map(
-          (p) => WEEKDAY[new Date(p.date + "T00:00:00Z").getUTCDay()],
-        )
-      : FALLBACK_LABELS;
-
   const consumptionLoading = electricityQuery.isLoading || gasQuery.isLoading;
   const consumptionError = electricityQuery.isError || gasQuery.isError;
-  const isSampleData = !hasLiveElec && !hasLiveGas;
+  const isSampleData = !hasLiveData;
 
   const activeDevices = devices.filter((d) => d.isOn);
   const currentUsage =

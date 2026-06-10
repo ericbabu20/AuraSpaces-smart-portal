@@ -47,14 +47,7 @@ function requireEnv(name: string): string {
 }
 
 function authHeader(): string {
-  const apiKey =
-    process.env.OCTOPUS_API_KEY ?? process.env.SLACK_LIVE_API_KEY;
-  if (!apiKey) {
-    throw new OctopusError(
-      "Missing required configuration: OCTOPUS_API_KEY",
-      500,
-    );
-  }
+  const apiKey = requireEnv("OCTOPUS_API_KEY");
   const token = Buffer.from(`${apiKey}:`).toString("base64");
   return `Basic ${token}`;
 }
@@ -115,6 +108,26 @@ function toDailyPoints(
     }));
 }
 
+// Smart-meter data lags, so the most recent day(s) returned by Octopus are
+// often incomplete (a tiny fraction of a full day). Drop trailing days whose
+// consumption is an obvious partial reading so headline figures and charts only
+// reflect complete days.
+function trimTrailingPartial(points: ConsumptionPoint[]): ConsumptionPoint[] {
+  if (points.length < 3) return points;
+  const positive = points
+    .map((p) => p.consumption)
+    .filter((v) => v > 0)
+    .sort((a, b) => a - b);
+  if (positive.length === 0) return points;
+  const median = positive[Math.floor(positive.length / 2)];
+  const threshold = median * 0.15;
+  let end = points.length;
+  while (end > 1 && points[end - 1].consumption < threshold) {
+    end -= 1;
+  }
+  return points.slice(0, end);
+}
+
 export async function getConsumption(
   fuel: Fuel,
   days: number,
@@ -146,7 +159,7 @@ export async function getConsumption(
     `?group_by=day&order_by=period&period_from=${encodeURIComponent(from)}`;
 
   const readings = await fetchAll(url);
-  const points = toDailyPoints(readings, convertToKwh);
+  const points = trimTrailingPartial(toDailyPoints(readings, convertToKwh));
   const total =
     Math.round(points.reduce((sum, p) => sum + p.consumption, 0) * 100) / 100;
 

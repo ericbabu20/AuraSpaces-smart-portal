@@ -1,1 +1,1 @@
-- [Expo package install fix](expo-install-fix.md) — package-firewall returns 502 for expo/react-native packages; public registry override in .npmrc is required
+- [Octopus Energy API](octopus-energy-api.md) — Basic auth (key as user, empty pw); data lags ~1-2d so trim trailing partial day; gas returns m³, ×11.1868 → kWh.

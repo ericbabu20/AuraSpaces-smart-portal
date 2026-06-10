@@ -7,12 +7,14 @@ interface EnergyRingProps {
   progress: number;
   currentKwh: number;
   size?: number;
+  unitLabel?: string;
 }
 
 export default function EnergyRing({
   progress,
   currentKwh,
   size = 200,
+  unitLabel = "kWh now",
 }: EnergyRingProps) {
   const colors = useColors();
   const strokeWidth = 16;
@@ -74,7 +76,7 @@ export default function EnergyRing({
             { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
           ]}
         >
-          kWh now
+          {unitLabel}
         </Text>
         <Text
           style={[

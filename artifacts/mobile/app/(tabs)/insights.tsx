@@ -21,7 +21,7 @@ function BarChart({
   labels: string[];
 }) {
   const colors = useColors();
-  const max = Math.max(...data, ...compareData) * 1.15;
+  const max = Math.max(...data, ...compareData, 1) * 1.15;
 
   return (
     <View style={styles.chart}>
@@ -32,7 +32,7 @@ function BarChart({
               style={[
                 styles.bar,
                 {
-                  height: (compareData[i] / max) * 100,
+                  height: ((compareData[i] ?? 0) / max) * 100,
                   backgroundColor: colors.accent,
                   borderRadius: 4,
                 },
@@ -42,7 +42,7 @@ function BarChart({
               style={[
                 styles.bar,
                 {
-                  height: (value / max) * 100,
+                  height: ((value ?? 0) / max) * 100,
                   backgroundColor: colors.primary,
                   borderRadius: 4,
                 },
@@ -109,7 +109,8 @@ function UsageByTime() {
 export default function InsightsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { electricityWeekly, gasWeekly, weekLabels } = useEnergy();
+  const { electricityWeekly, gasWeekly, weekLabels, isSampleData } =
+    useEnergy();
 
   const topPad = Platform.OS === "web" ? 67 : insets.top + 8;
   const elecTotal = electricityWeekly.reduce((a, b) => a + b, 0);
@@ -133,6 +134,17 @@ export default function InsightsScreen() {
       >
         Energy Insights
       </Text>
+
+      {isSampleData ? (
+        <Text
+          style={[
+            styles.sampleNote,
+            { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+          ]}
+        >
+          Showing sample data — live meter data unavailable
+        </Text>
+      ) : null}
 
       <View style={styles.summaryRow}>
         <View
@@ -314,6 +326,12 @@ export default function InsightsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   title: { fontSize: 26, paddingHorizontal: 20, marginBottom: 16 },
+  sampleNote: {
+    fontSize: 11,
+    paddingHorizontal: 20,
+    marginTop: -8,
+    marginBottom: 12,
+  },
   summaryRow: {
     flexDirection: "row",
     gap: 10,

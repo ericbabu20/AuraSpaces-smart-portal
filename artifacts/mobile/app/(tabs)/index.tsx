@@ -85,7 +85,12 @@ export default function HomeScreen() {
             { backgroundColor: colors.primary + "18" },
           ]}
         />
-        <EnergyRing progress={elecPercent} currentKwh={elecKwh} size={210} />
+        <EnergyRing
+          progress={elecPercent}
+          currentKwh={elecKwh}
+          size={210}
+          unitLabel="kWh today"
+        />
         <Text
           style={[
             styles.ringSubtext,

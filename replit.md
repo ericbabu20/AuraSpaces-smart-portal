@@ -1,6 +1,6 @@
-# [Project name]
+# Aura Spaces
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A smart-home energy assistant (Expo mobile app) that shows real electricity and gas consumption from the user's Octopus Energy account, alongside smart-device controls.
 
 ## Run & Operate
 
@@ -22,23 +22,32 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/api-spec/openapi.yaml` — source of truth for the API contract; run codegen after edits.
+- `artifacts/api-server/src/lib/octopus.ts` — Octopus Energy client (auth, daily grouping, gas m³→kWh, trailing-partial-day trim).
+- `artifacts/api-server/src/routes/consumption.ts` — `/api/consumption/electricity` and `/api/consumption/gas`.
+- `artifacts/mobile/lib/api.ts` — sets the API base URL for the generated client (uses `EXPO_PUBLIC_DOMAIN`); imported in `app/_layout.tsx`.
+- `artifacts/mobile/context/EnergyContext.tsx` — fetches consumption via generated hooks; exposes electricity/gas today + weekly arrays.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Octopus consumption is historical (smart-meter data lags ~1–2 days, no real-time reading). Daily totals/charts use the latest **complete** day; the device-based "Active Now" view is a separate live simulation.
+- Gas is fetched in m³ and converted to kWh server-side (factor 11.1868, configurable via `OCTOPUS_GAS_M3_TO_KWH`; toggle with `OCTOPUS_GAS_UNITS`).
+- The trailing incomplete day is trimmed server-side so headline figures don't show near-zero partial days.
+- The mobile app talks to `api-server` through the shared proxy; the Octopus API key stays server-side only.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Home: electricity ring vs daily target, gas/saved/CO₂ stat cards, device controls, quick access.
+- Insights: weekly electricity-vs-gas bar chart with electricity/gas/total summaries.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Currency is shown in £ (GBP).
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Required secret: `OCTOPUS_API_KEY` (Octopus `sk_live_...`). Required shared env: `OCTOPUS_ELECTRICITY_MPAN`, `OCTOPUS_ELECTRICITY_SERIAL`, `OCTOPUS_GAS_MPRN`, `OCTOPUS_GAS_SERIAL`, `OCTOPUS_GAS_UNITS`.
+- After editing `lib/api-spec/openapi.yaml`, run `pnpm --filter @workspace/api-spec run codegen` before typechecking consumers.
 
 ## Pointers
 
