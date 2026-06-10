@@ -8,45 +8,57 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
 import React, { useEffect } from "react";
+import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { EnergyProvider } from "@/context/EnergyContext";
+import { useColors } from "@/hooks/useColors";
 
 SplashScreen.preventAutoHideAsync();
-SystemUI.setBackgroundColorAsync("#0D1117");
 
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
+  const colors = useColors();
+  const scheme = useColorScheme();
+
+  useEffect(() => {
+    SystemUI.setBackgroundColorAsync(colors.background);
+  }, [colors.background]);
+
   return (
-    <Stack
-      screenOptions={{
-        headerStyle: { backgroundColor: "#0D1117" },
-        headerTintColor: "#E6EDF3",
-        headerShadowVisible: false,
-        headerBackTitle: "Back",
-        contentStyle: { backgroundColor: "#0D1117" },
-      }}
-    >
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="aura"
-        options={{ headerShown: false, presentation: "modal" }}
-      />
-      <Stack.Screen
-        name="recommendations"
-        options={{ title: "Recommendations" }}
-      />
-      <Stack.Screen name="thermostat" options={{ title: "Thermostat" }} />
-      <Stack.Screen name="schedule" options={{ title: "Schedule" }} />
-      <Stack.Screen name="automation" options={{ title: "Automation" }} />
-      <Stack.Screen name="connect" options={{ title: "Connect Device" }} />
-    </Stack>
+    <>
+      <StatusBar style={scheme === "dark" ? "light" : "dark"} />
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.foreground,
+          headerShadowVisible: false,
+          headerBackTitle: "Back",
+          contentStyle: { backgroundColor: colors.background },
+        }}
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="aura"
+          options={{ headerShown: false, presentation: "modal" }}
+        />
+        <Stack.Screen
+          name="recommendations"
+          options={{ title: "Recommendations" }}
+        />
+        <Stack.Screen name="thermostat" options={{ title: "Thermostat" }} />
+        <Stack.Screen name="schedule" options={{ title: "Schedule" }} />
+        <Stack.Screen name="automation" options={{ title: "Automation" }} />
+        <Stack.Screen name="connect" options={{ title: "Connect Device" }} />
+      </Stack>
+    </>
   );
 }
 
