@@ -41,10 +41,10 @@ const INITIAL_MESSAGES: Message[] = [
 
 const AI_RESPONSES: Record<string, string> = {
   default:
-    "I've analyzed your home's energy data. Based on current usage patterns, your top opportunity is shifting laundry and EV charging to off-peak hours after 9 PM, which could save you around $38 this month.",
-  bill: "Your estimated bill for this month is $87 — that's $12 lower than last month. Your peak usage is 12–6 PM. Shifting 2 heavy appliances could save another $22.",
+    "I've analyzed your home's energy data. Based on current usage patterns, your top opportunity is shifting laundry and EV charging to off-peak hours after 9 PM, which could save you around £32 this month.",
+  bill: "Your estimated bill for this month is £85 — that's £10 lower than last month. Your peak usage is 12–6 PM. Shifting 2 heavy appliances could save another £18.",
   thermostat:
-    "Done! Thermostat set to 21°C. At your current plan rates, this change saves approximately $0.40 per day compared to 24°C.",
+    "Done! Thermostat set to 19°C. At your current tariff rates, this change saves approximately £0.33 per day compared to 21°C.",
   lights:
     "Turning off bedroom lights now. They were consuming 40W — that's 0.04 kWh per hour saved.",
   power:

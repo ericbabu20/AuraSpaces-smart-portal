@@ -129,8 +129,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     id: "1",
     title: "Shift dishwasher to off-peak",
     description:
-      "Running after 9 PM saves up to 40% on electricity rates in your area.",
-    savingsPerMonth: 12,
+      "Running after 9 PM uses the cheaper Economy 7 off-peak rate instead of peak.",
+    savingsPerMonth: 9,
     category: "appliance",
     difficulty: "easy",
     icon: "time-outline",
@@ -139,8 +139,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     id: "2",
     title: "Lower thermostat by 2°",
     description:
-      "Reducing from 24°C to 22°C cuts heating costs by up to 15% with no noticeable comfort difference.",
-    savingsPerMonth: 28,
+      "Reducing from 21°C to 19°C cuts heating costs by up to 15% with no noticeable comfort difference.",
+    savingsPerMonth: 24,
     category: "climate",
     difficulty: "easy",
     icon: "thermometer-outline",
@@ -149,8 +149,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     id: "3",
     title: "Smart EV overnight charging",
     description:
-      "Enabling scheduled off-peak charging between 11 PM–6 AM saves significantly on energy costs.",
-    savingsPerMonth: 45,
+      "Enabling scheduled off-peak charging between 12:30–4:30 AM uses your cheapest overnight EV tariff rate.",
+    savingsPerMonth: 38,
     category: "ev",
     difficulty: "medium",
     icon: "car-outline",
@@ -160,7 +160,7 @@ const RECOMMENDATIONS: Recommendation[] = [
     title: "Switch to LED bulbs",
     description:
       "Replacing remaining incandescent bulbs reduces lighting energy use by up to 75%.",
-    savingsPerMonth: 8,
+    savingsPerMonth: 6,
     category: "lighting",
     difficulty: "easy",
     icon: "bulb-outline",
@@ -191,7 +191,7 @@ const ACTIVITY: ActivityItem[] = [
   },
   {
     id: "4",
-    description: "Saved $3.40 by shifting EV charging to off-peak",
+    description: "Saved £2.80 by shifting EV charging to off-peak",
     timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
     type: "savings",
     icon: "leaf-outline",
@@ -205,7 +205,7 @@ const ACTIVITY: ActivityItem[] = [
   },
   {
     id: "6",
-    description: "Energy bill estimate updated: $87 this month",
+    description: "Energy bill estimate updated: £85 this month",
     timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000),
     type: "alert",
     icon: "document-text-outline",
@@ -329,7 +329,7 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
   const activeDevices = devices.filter((d) => d.isOn);
   const currentUsage =
     activeDevices.reduce((sum, d) => sum + d.powerDraw, 0) / 1000;
-  const maxUsage = 5.5;
+  const maxUsage = 7.4;
   const usagePercent = Math.min(currentUsage / maxUsage, 1);
 
   return (
@@ -343,8 +343,8 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
         toggleAutomation,
         currentUsage,
         usagePercent,
-        moneySaved: 47.8,
-        carbonOffset: 23.4,
+        moneySaved: 38.5,
+        carbonOffset: 18.2,
         weeklyData: WEEKLY_DATA,
         thermostatTemp,
         setThermostatTemp,

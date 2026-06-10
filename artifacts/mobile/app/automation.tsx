@@ -62,7 +62,7 @@ export default function AutomationScreen() {
           <Text
             style={[styles.summaryDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}
           >
-            Saving ~$28/month passively
+            Saving ~£24/month passively
           </Text>
         </View>
       </View>

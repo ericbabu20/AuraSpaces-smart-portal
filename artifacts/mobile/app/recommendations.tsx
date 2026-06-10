@@ -67,7 +67,7 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
               { color: colors.primary, fontFamily: "Inter_700Bold" },
             ]}
           >
-            +${rec.savingsPerMonth}/mo
+            +£{rec.savingsPerMonth}/mo
           </Text>
         </View>
       </View>
@@ -166,7 +166,7 @@ export default function RecommendationsScreen() {
               { color: colors.primary, fontFamily: "Inter_700Bold" },
             ]}
           >
-            ${totalSavings}/month
+            £{totalSavings}/month
           </Text>
           <Text
             style={[

@@ -90,7 +90,7 @@ export default function HomeScreen() {
             },
           ]}
         >
-          of 5.5 kWh daily target
+          of 7.4 kWh daily target
         </Text>
       </View>
 
@@ -135,7 +135,7 @@ export default function HomeScreen() {
               { color: colors.foreground, fontFamily: "Inter_700Bold" },
             ]}
           >
-            ${moneySaved.toFixed(0)}
+            £{moneySaved.toFixed(0)}
           </Text>
           <Text
             style={[
@@ -350,7 +350,7 @@ export default function HomeScreen() {
             Savings
           </Text>
           <Text style={[styles.quickTileValue, { color: colors.accent, fontFamily: "Inter_700Bold" }]}>
-            $93/mo
+            £77/mo
           </Text>
         </TouchableOpacity>
       </View>

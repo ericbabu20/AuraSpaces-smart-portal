@@ -210,7 +210,7 @@ export default function ProfileScreen() {
                 { color: colors.foreground, fontFamily: "Inter_700Bold" },
               ]}
             >
-              $87
+              £85
             </Text>
             <Text
               style={[
@@ -232,7 +232,7 @@ export default function ProfileScreen() {
                 { color: colors.foreground, fontFamily: "Inter_700Bold" },
               ]}
             >
-              $47.80
+              £38.50
             </Text>
             <Text
               style={[
@@ -254,7 +254,7 @@ export default function ProfileScreen() {
                 { color: colors.foreground, fontFamily: "Inter_700Bold" },
               ]}
             >
-              23.4 kg
+              18.2 kg
             </Text>
             <Text
               style={[

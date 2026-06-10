@@ -115,7 +115,7 @@ export default function ActivityScreen() {
                       },
                     ]}
                   >
-                    ${moneySaved.toFixed(2)}
+                    £{moneySaved.toFixed(2)}
                   </Text>
                   <Text
                     style={[
