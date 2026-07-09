@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import {
+  Image,
   Platform,
   ScrollView,
   StyleSheet,
@@ -41,6 +42,15 @@ export default function HomeScreen() {
       }}
       showsVerticalScrollIndicator={false}
     >
+      <View style={styles.logoRow}>
+        <Image
+          source={require("../../assets/images/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+          accessibilityLabel="Aura Spaces"
+        />
+      </View>
+
       <View style={styles.header}>
         <View>
           <Text
@@ -383,6 +393,14 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  logoRow: {
+    paddingHorizontal: 20,
+    marginBottom: 4,
+  },
+  logo: {
+    height: 30,
+    width: 68,
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",

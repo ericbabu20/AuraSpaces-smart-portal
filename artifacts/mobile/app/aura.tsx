@@ -1,9 +1,11 @@
 import { useColors } from "@/hooks/useColors";
+import { useVoice } from "@/hooks/useVoice";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated,
   FlatList,
   Platform,
   StyleSheet,
@@ -112,6 +114,43 @@ export default function AuraScreen() {
   const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
+  // Voice: speech-to-text fills/sends the message, text-to-speech reads replies.
+  // sendMessageRef lets the voice callbacks reach the latest sendMessage without
+  // a declaration-order cycle.
+  const sendMessageRef = useRef<(text: string) => void>(() => {});
+  const voice = useVoice({
+    onPartialTranscript: (t) => setInput(t),
+    onFinalTranscript: (t) => {
+      setInput("");
+      sendMessageRef.current(t);
+    },
+  });
+
+  // Pulse the mic button while it is listening.
+  const pulse = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    if (!voice.isListening) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, {
+          toValue: 0.4,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    loop.start();
+    return () => {
+      loop.stop();
+      pulse.setValue(1);
+    };
+  }, [voice.isListening, pulse]);
+
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const sendMessage = (text: string) => {
@@ -137,8 +176,35 @@ export default function AuraScreen() {
       };
       setMessages((prev) => [aiMsg, ...prev]);
       setIsTyping(false);
+      if (voice.voiceRepliesOn) {
+        voice.speak(aiMsg.content);
+      }
     }, 1000 + Math.random() * 500);
   };
+
+  sendMessageRef.current = sendMessage;
+
+  const handleMicPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    if (voice.isListening) {
+      voice.stopListening();
+    } else {
+      voice.startListening();
+    }
+  };
+
+  const handleToggleVoiceReplies = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    voice.toggleVoiceReplies();
+  };
+
+  const statusLabel = voice.isListening
+    ? "Listening..."
+    : voice.isSpeaking
+      ? "Speaking..."
+      : isTyping
+        ? "Thinking..."
+        : "Online";
 
   return (
     <KeyboardAvoidingView
@@ -182,11 +248,29 @@ export default function AuraScreen() {
                 },
               ]}
             >
-              {isTyping ? "Thinking..." : "Online"}
+              {statusLabel}
             </Text>
           </View>
         </View>
-        <View style={{ width: 24 }} />
+        <TouchableOpacity
+          onPress={handleToggleVoiceReplies}
+          accessibilityRole="button"
+          accessibilityLabel={
+            voice.voiceRepliesOn ? "Turn off read aloud" : "Turn on read aloud"
+          }
+          style={[
+            styles.speakerBtn,
+            voice.voiceRepliesOn && { backgroundColor: colors.primary + "20" },
+          ]}
+        >
+          <Ionicons
+            name={voice.voiceRepliesOn ? "volume-high" : "volume-mute"}
+            size={20}
+            color={
+              voice.voiceRepliesOn ? colors.primary : colors.mutedForeground
+            }
+          />
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -273,6 +357,34 @@ export default function AuraScreen() {
           },
         ]}
       >
+        {voice.supportsSTT && (
+          <Animated.View style={{ opacity: voice.isListening ? pulse : 1 }}>
+            <TouchableOpacity
+              onPress={handleMicPress}
+              accessibilityRole="button"
+              accessibilityLabel={
+                voice.isListening ? "Stop listening" : "Speak to Aura"
+              }
+              style={[
+                styles.micBtn,
+                {
+                  backgroundColor: voice.isListening
+                    ? colors.destructive
+                    : colors.background,
+                  borderColor: voice.isListening
+                    ? colors.destructive
+                    : colors.border,
+                },
+              ]}
+            >
+              <Ionicons
+                name={voice.isListening ? "mic" : "mic-outline"}
+                size={20}
+                color={voice.isListening ? "#FFFFFF" : colors.mutedForeground}
+              />
+            </TouchableOpacity>
+          </Animated.View>
+        )}
         <TextInput
           style={[
             styles.input,
@@ -285,7 +397,9 @@ export default function AuraScreen() {
           ]}
           value={input}
           onChangeText={setInput}
-          placeholder="Ask Aura anything..."
+          placeholder={
+            voice.isListening ? "Listening..." : "Ask Aura anything..."
+          }
           placeholderTextColor={colors.mutedForeground}
           onSubmitEditing={() => sendMessage(input)}
           returnKeyType="send"
@@ -396,6 +510,21 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  micBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  speakerBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
   },

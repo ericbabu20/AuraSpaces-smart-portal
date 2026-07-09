@@ -30,7 +30,15 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow Aura to use the microphone so you can talk to your energy assistant.",
+          "speechRecognitionPermission": "Allow Aura to recognize your speech so it can understand your questions.",
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
