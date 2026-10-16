@@ -11,7 +11,6 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
 import React, { useEffect } from "react";
-import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -19,6 +18,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import "@/lib/api";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { EnergyProvider } from "@/context/EnergyContext";
+import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 
 SplashScreen.preventAutoHideAsync();
@@ -27,7 +27,7 @@ const queryClient = new QueryClient();
 
 function RootLayoutNav() {
   const colors = useColors();
-  const scheme = useColorScheme();
+  const { isDark } = useTheme();
 
   useEffect(() => {
     SystemUI.setBackgroundColorAsync(colors.background);
@@ -35,7 +35,7 @@ function RootLayoutNav() {
 
   return (
     <>
-      <StatusBar style={scheme === "dark" ? "light" : "dark"} />
+      <StatusBar style={isDark ? "light" : "dark"} />
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: colors.background },
@@ -83,13 +83,15 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
-          <EnergyProvider>
-            <GestureHandlerRootView>
-              <KeyboardProvider>
-                <RootLayoutNav />
-              </KeyboardProvider>
-            </GestureHandlerRootView>
-          </EnergyProvider>
+          <ThemeProvider>
+            <EnergyProvider>
+              <GestureHandlerRootView>
+                <KeyboardProvider>
+                  <RootLayoutNav />
+                </KeyboardProvider>
+              </GestureHandlerRootView>
+            </EnergyProvider>
+          </ThemeProvider>
         </QueryClientProvider>
       </ErrorBoundary>
     </SafeAreaProvider>

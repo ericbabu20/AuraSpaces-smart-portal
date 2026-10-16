@@ -1,15 +1,14 @@
 import { ActivityItem, useEnergy } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
+import { useTabContentInsets } from "@/hooks/useTabContentInsets";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
   FlatList,
-  Platform,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function formatRelative(date: Date): string {
   const diffMs = Date.now() - date.getTime();
@@ -63,10 +62,8 @@ function ActivityRow({ item }: { item: ActivityItem }) {
 
 export default function ActivityScreen() {
   const colors = useColors();
-  const insets = useSafeAreaInsets();
+  const contentInsets = useTabContentInsets();
   const { activity, moneySaved, carbonOffset } = useEnergy();
-
-  const topPad = Platform.OS === "web" ? 67 : insets.top + 8;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -75,10 +72,7 @@ export default function ActivityScreen() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <ActivityRow item={item} />}
         scrollEnabled={!!activity.length}
-        contentContainerStyle={{
-          paddingTop: topPad,
-          paddingBottom: Platform.OS === "web" ? 120 : Platform.OS === "ios" ? 100 : insets.bottom + 24,
-        }}
+        contentContainerStyle={contentInsets}
         ListHeaderComponent={
           <View>
             <Text

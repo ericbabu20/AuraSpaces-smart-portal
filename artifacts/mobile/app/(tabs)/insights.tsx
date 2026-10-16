@@ -1,15 +1,14 @@
 import { useEnergy } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
+import { useTabContentInsets } from "@/hooks/useTabContentInsets";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function BarChart({
   data,
@@ -108,11 +107,10 @@ function UsageByTime() {
 
 export default function InsightsScreen() {
   const colors = useColors();
-  const insets = useSafeAreaInsets();
   const { electricityWeekly, gasWeekly, weekLabels, isSampleData } =
     useEnergy();
 
-  const topPad = Platform.OS === "web" ? 67 : insets.top + 8;
+  const contentInsets = useTabContentInsets();
   const elecTotal = electricityWeekly.reduce((a, b) => a + b, 0);
   const gasTotal = gasWeekly.reduce((a, b) => a + b, 0);
   const combinedTotal = elecTotal + gasTotal;
@@ -120,10 +118,7 @@ export default function InsightsScreen() {
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={{
-        paddingTop: topPad,
-        paddingBottom: Platform.OS === "web" ? 120 : Platform.OS === "ios" ? 100 : insets.bottom + 24,
-      }}
+      contentContainerStyle={contentInsets}
       showsVerticalScrollIndicator={false}
     >
       <Text

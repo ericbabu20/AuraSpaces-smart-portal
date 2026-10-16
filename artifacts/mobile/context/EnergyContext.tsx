@@ -42,7 +42,24 @@ export interface AutomationRule {
   icon: string;
 }
 
+/** Which energy assets this household actually owns. */
+export interface EnergyProfile {
+  hasSolar: boolean;
+  hasBattery: boolean;
+  hasEv: boolean;
+  hasGas: boolean;
+}
+
+const DEFAULT_PROFILE: EnergyProfile = {
+  hasSolar: false,
+  hasBattery: false,
+  hasEv: true,
+  hasGas: true,
+};
+
 interface EnergyContextType {
+  energyProfile: EnergyProfile;
+  setEnergyProfile: (patch: Partial<EnergyProfile>) => void;
   devices: Device[];
   toggleDevice: (id: string) => void;
   recommendations: Recommendation[];
@@ -283,6 +300,8 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
   const [devices, setDevices] = useState<Device[]>(INITIAL_DEVICES);
   const [automations, setAutomations] =
     useState<AutomationRule[]>(AUTOMATIONS);
+  const [energyProfile, setEnergyProfileState] =
+    useState<EnergyProfile>(DEFAULT_PROFILE);
   const [thermostatTemp, setThermostatTempState] = useState(22);
   const [thermostatMode, setThermostatModeState] = useState<
     "cool" | "heat" | "fan" | "off"
@@ -301,6 +320,9 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
           prev.map((d) => ({ ...d, isOn: states[d.id] ?? d.isOn }))
         );
       }
+      const profile = await AsyncStorage.getItem("aura_energy_profile");
+      if (profile)
+        setEnergyProfileState({ ...DEFAULT_PROFILE, ...JSON.parse(profile) });
       const temp = await AsyncStorage.getItem("aura_thermostat_temp");
       if (temp) setThermostatTempState(Number(temp));
       const mode = await AsyncStorage.getItem("aura_thermostat_mode");
@@ -322,6 +344,16 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
         () => {}
       );
       return updated;
+    });
+  };
+
+  const setEnergyProfile = (patch: Partial<EnergyProfile>) => {
+    setEnergyProfileState((prev) => {
+      const next = { ...prev, ...patch };
+      AsyncStorage.setItem("aura_energy_profile", JSON.stringify(next)).catch(
+        () => {}
+      );
+      return next;
     });
   };
 
@@ -386,6 +418,8 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
   return (
     <EnergyContext.Provider
       value={{
+        energyProfile,
+        setEnergyProfile,
         devices,
         toggleDevice,
         recommendations: RECOMMENDATIONS,

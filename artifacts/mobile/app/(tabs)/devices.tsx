@@ -1,28 +1,25 @@
 import DeviceCard from "@/components/DeviceCard";
 import { useEnergy } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
+import { useTabContentInsets } from "@/hooks/useTabContentInsets";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const CATEGORIES = ["All", "Climate", "Lighting", "Appliance", "EV"];
 
 export default function DevicesScreen() {
   const colors = useColors();
-  const insets = useSafeAreaInsets();
+  const contentInsets = useTabContentInsets();
   const { devices, toggleDevice } = useEnergy();
   const [selectedCategory, setSelectedCategory] = useState("All");
-
-  const topPad = Platform.OS === "web" ? 67 : insets.top + 8;
 
   const filtered =
     selectedCategory === "All"
@@ -37,10 +34,7 @@ export default function DevicesScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
-        contentContainerStyle={{
-          paddingTop: topPad,
-          paddingBottom: Platform.OS === "web" ? 120 : Platform.OS === "ios" ? 100 : insets.bottom + 24,
-        }}
+        contentContainerStyle={contentInsets}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>

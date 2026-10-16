@@ -30,6 +30,12 @@
         }
       ],
       "expo-font",
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Aura uses your phone's motion to add a subtle depth effect to the home view."
+        }
+      ],
       "expo-web-browser",
       [
         "expo-speech-recognition",

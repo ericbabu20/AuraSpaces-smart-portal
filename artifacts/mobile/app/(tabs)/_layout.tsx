@@ -1,13 +1,17 @@
-import { BlurView } from "expo-blur";
+import DesktopSidebar from "@/components/DesktopSidebar";
+import { Glass } from "@/components/Glass";
+import { useColors } from "@/hooks/useColors";
+import { useIsWideLayout } from "@/hooks/useIsWideLayout";
+import { Feather } from "@expo/vector-icons";
 import { isLiquidGlassAvailable } from "expo-glass-effect";
 import { Tabs } from "expo-router";
 import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import { SymbolView } from "expo-symbols";
-import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { Platform, StyleSheet, View, useColorScheme } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useColors } from "@/hooks/useColors";
+import { fonts, radius } from "@/theme/tokens";
 
 function NativeTabLayout() {
   return (
@@ -36,12 +40,10 @@ function NativeTabLayout() {
   );
 }
 
-function ClassicTabLayout() {
+function TabScreens({ hideTabBar }: { hideTabBar?: boolean }) {
   const colors = useColors();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const insets = useSafeAreaInsets();
   const isIOS = Platform.OS === "ios";
-  const isWeb = Platform.OS === "web";
 
   return (
     <Tabs
@@ -49,33 +51,36 @@ function ClassicTabLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.mutedForeground,
         headerShown: false,
-        tabBarStyle: {
-          ...(isIOS || isWeb ? { position: "absolute" } : {}),
-          backgroundColor: isIOS ? "transparent" : colors.background,
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
-          elevation: 0,
-          ...(isWeb ? { height: 84 } : {}),
-        },
+        // Floating glass capsule: 16px side margins, lifted off the bottom edge.
+        tabBarStyle: hideTabBar
+          ? { display: "none" }
+          : {
+              position: "absolute",
+              left: 16,
+              right: 16,
+              bottom: Math.max(insets.bottom, 12) + (Platform.OS === "web" ? 4 : 0),
+              height: 64,
+              paddingTop: 8,
+              paddingBottom: 8,
+              borderRadius: radius.pill,
+              backgroundColor: "transparent",
+              borderTopWidth: 0,
+              elevation: 0,
+              overflow: "hidden",
+            },
         tabBarBackground: () =>
-          isIOS ? (
-            <BlurView
-              intensity={100}
-              tint={isDark ? "dark" : "light"}
+          hideTabBar ? null : (
+            <Glass
+              variant="regular"
+              radius={radius.pill}
               style={StyleSheet.absoluteFill}
             />
-          ) : isWeb ? (
-            <View
-              style={[
-                StyleSheet.absoluteFill,
-                { backgroundColor: colors.background },
-              ]}
-            />
-          ) : null,
+          ),
         tabBarLabelStyle: {
-          fontFamily: "Inter_500Medium",
+          fontFamily: fonts.bodyMedium,
           fontSize: 11,
         },
+        tabBarItemStyle: { borderRadius: radius.pill },
       }}
     >
       <Tabs.Screen
@@ -142,9 +147,39 @@ function ClassicTabLayout() {
   );
 }
 
+function WideWebLayout() {
+  const colors = useColors();
+  return (
+    <View style={[styles.wideRoot, { backgroundColor: colors.background }]}>
+      <DesktopSidebar />
+      <View style={styles.wideContent}>
+        <TabScreens hideTabBar />
+      </View>
+    </View>
+  );
+}
+
 export default function TabLayout() {
+  const isWide = useIsWideLayout();
+
+  if (isWide) {
+    return <WideWebLayout />;
+  }
+
   if (isLiquidGlassAvailable()) {
     return <NativeTabLayout />;
   }
-  return <ClassicTabLayout />;
+
+  return <TabScreens />;
 }
+
+const styles = StyleSheet.create({
+  wideRoot: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  wideContent: {
+    flex: 1,
+    minWidth: 0,
+  },
+});

@@ -1,16 +1,17 @@
+import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
+import { useTabContentInsets } from "@/hooks/useTabContentInsets";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import {
-  Platform,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface SettingsRowProps {
   icon: string;
@@ -84,16 +85,13 @@ function SettingsRow({
 
 export default function ProfileScreen() {
   const colors = useColors();
-  const insets = useSafeAreaInsets();
-  const topPad = Platform.OS === "web" ? 67 : insets.top + 8;
+  const { isDark, setDarkMode } = useTheme();
+  const contentInsets = useTabContentInsets();
 
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={{
-        paddingTop: topPad,
-        paddingBottom: Platform.OS === "web" ? 120 : Platform.OS === "ios" ? 100 : insets.bottom + 24,
-      }}
+      contentContainerStyle={contentInsets}
       showsVerticalScrollIndicator={false}
     >
       <Text
@@ -286,7 +284,45 @@ export default function ProfileScreen() {
         ]}
       >
         <SettingsRow icon="notifications-outline" label="Notifications" value="On" />
-        <SettingsRow icon="moon-outline" label="Dark Mode" value="On" />
+        <View style={[styles.settingsRow, { borderBottomColor: colors.border }]}>
+          <View
+            style={[
+              styles.settingsIcon,
+              { backgroundColor: colors.primary + "20" },
+            ]}
+          >
+            <Ionicons name="moon-outline" size={18} color={colors.primary} />
+          </View>
+          <Text
+            style={[
+              styles.settingsLabel,
+              { color: colors.foreground, fontFamily: "Inter_500Medium" },
+            ]}
+          >
+            Dark Mode
+          </Text>
+          <View style={styles.settingsRight}>
+            <Text
+              style={[
+                styles.settingsValue,
+                {
+                  color: colors.mutedForeground,
+                  fontFamily: "Inter_400Regular",
+                  marginRight: 8,
+                },
+              ]}
+            >
+              {isDark ? "On" : "Off"}
+            </Text>
+            <Switch
+              value={isDark}
+              onValueChange={setDarkMode}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor="#FFFFFF"
+              accessibilityLabel="Toggle dark mode"
+            />
+          </View>
+        </View>
         <SettingsRow icon="language-outline" label="Units" value="Metric" />
         <SettingsRow icon="location-outline" label="Location" value="Enabled" showChevron={false} />
       </View>
