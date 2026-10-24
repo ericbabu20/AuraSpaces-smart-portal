@@ -1,9 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  useGetElectricityConsumption,
-  useGetGasConsumption,
-} from "@workspace/api-client-react";
+import { useQuery } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useState } from "react";
+
+import { useAuth } from "@/context/AuthContext";
+import { getConsumption, getPrepayBalances, type FuelBalance } from "@/lib/backend";
+import {
+  loadEnergyState,
+  saveDevices,
+  saveEnergyProfile,
+} from "@/lib/energyData";
 
 export interface Device {
   id: string;
@@ -79,6 +84,8 @@ interface EnergyContextType {
   consumptionLoading: boolean;
   consumptionError: boolean;
   isSampleData: boolean;
+  electricityBalance: FuelBalance | null;
+  gasBalance: FuelBalance | null;
   thermostatTemp: number;
   setThermostatTemp: (temp: number) => void;
   thermostatMode: "cool" | "heat" | "fan" | "off";
@@ -297,6 +304,7 @@ const WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const FALLBACK_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function EnergyProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const [devices, setDevices] = useState<Device[]>(INITIAL_DEVICES);
   const [automations, setAutomations] =
     useState<AutomationRule[]>(AUTOMATIONS);
@@ -309,7 +317,21 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     loadState();
-  }, []);
+    if (user) {
+      loadEnergyState(user.id)
+        .then((cloud) => {
+          if (cloud.profile) setEnergyProfileState(cloud.profile);
+          if (cloud.devices.length) {
+            setDevices(cloud.devices);
+          } else {
+            void saveDevices(user.id, INITIAL_DEVICES);
+          }
+        })
+        .catch(() => {
+          // Offline/local mode keeps the cached state below.
+        });
+    }
+  }, [user?.id]);
 
   const loadState = async () => {
     try {
@@ -343,6 +365,7 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.setItem("aura_device_states", JSON.stringify(states)).catch(
         () => {}
       );
+      if (user) void saveDevices(user.id, updated);
       return updated;
     });
   };
@@ -353,6 +376,7 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
       AsyncStorage.setItem("aura_energy_profile", JSON.stringify(next)).catch(
         () => {}
       );
+      if (user) void saveEnergyProfile(user.id, next);
       return next;
     });
   };
@@ -373,8 +397,27 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
     AsyncStorage.setItem("aura_thermostat_mode", mode).catch(() => {});
   };
 
-  const electricityQuery = useGetElectricityConsumption({ days: 7 });
-  const gasQuery = useGetGasConsumption({ days: 7 });
+  const electricityQuery = useQuery({
+    queryKey: ["consumption", user?.id, "electricity", 7],
+    queryFn: () => getConsumption("electricity", 7),
+    enabled: true,
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
+  });
+  const gasQuery = useQuery({
+    queryKey: ["consumption", user?.id, "gas", 7],
+    queryFn: () => getConsumption("gas", 7),
+    enabled: true,
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
+  });
+  const prepayQuery = useQuery({
+    queryKey: ["prepay-balances"],
+    queryFn: getPrepayBalances,
+    enabled: true,
+    retry: 1,
+    staleTime: 60 * 1000,
+  });
 
   const elecPoints = electricityQuery.data?.points ?? [];
   const gasPoints = gasQuery.data?.points ?? [];
@@ -439,6 +482,8 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
         consumptionLoading,
         consumptionError,
         isSampleData,
+        electricityBalance: prepayQuery.data?.electricity ?? null,
+        gasBalance: prepayQuery.data?.gas ?? null,
         thermostatTemp,
         setThermostatTemp,
         thermostatMode,

@@ -1,4 +1,5 @@
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
 import { useColors } from "@/hooks/useColors";
 import { useTabContentInsets } from "@/hooks/useTabContentInsets";
 import { Ionicons } from "@expo/vector-icons";
@@ -86,7 +87,13 @@ function SettingsRow({
 export default function ProfileScreen() {
   const colors = useColors();
   const { isDark, setDarkMode } = useTheme();
+  const { user, signOut } = useAuth();
   const contentInsets = useTabContentInsets();
+  const displayName =
+    (user?.user_metadata?.name as string | undefined) ||
+    user?.email?.split("@")[0] ||
+    "Aura customer";
+  const initial = displayName.charAt(0).toUpperCase();
 
   return (
     <ScrollView
@@ -124,7 +131,7 @@ export default function ProfileScreen() {
               { color: colors.primary, fontFamily: "Inter_700Bold" },
             ]}
           >
-            A
+            {initial}
           </Text>
         </View>
         <View style={styles.userInfo}>
@@ -134,7 +141,7 @@ export default function ProfileScreen() {
               { color: colors.foreground, fontFamily: "Inter_700Bold" },
             ]}
           >
-            Alex Chen
+            {displayName}
           </Text>
           <Text
             style={[
@@ -145,7 +152,7 @@ export default function ProfileScreen() {
               },
             ]}
           >
-            alex@example.com
+            {user?.email ?? ""}
           </Text>
         </View>
         <TouchableOpacity>
@@ -341,6 +348,12 @@ export default function ProfileScreen() {
           { backgroundColor: colors.card, borderColor: colors.border },
         ]}
       >
+        <SettingsRow
+          icon="flash-outline"
+          label="Octopus Energy"
+          value="Connect"
+          onPress={() => router.push("/octopus" as never)}
+        />
         <SettingsRow icon="shield-checkmark-outline" label="Privacy" />
         <SettingsRow icon="document-text-outline" label="Terms & Conditions" />
         <SettingsRow icon="help-circle-outline" label="Help & Support" />
@@ -349,6 +362,7 @@ export default function ProfileScreen() {
           label="Sign Out"
           color={colors.destructive}
           showChevron={false}
+          onPress={() => void signOut()}
         />
       </View>
 

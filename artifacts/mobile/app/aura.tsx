@@ -1,5 +1,6 @@
 import { useColors } from "@/hooks/useColors";
 import { useVoice } from "@/hooks/useVoice";
+import { askAura, loadChatSession } from "@/lib/backend";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
@@ -40,31 +41,6 @@ const INITIAL_MESSAGES: Message[] = [
     timestamp: new Date(Date.now() - 60000),
   },
 ];
-
-const AI_RESPONSES: Record<string, string> = {
-  default:
-    "I've analyzed your home's energy data. Based on current usage patterns, your top opportunity is shifting laundry and EV charging to off-peak hours after 9 PM, which could save you around £32 this month.",
-  bill: "Your estimated bill for this month is £85 — that's £10 lower than last month. Your peak usage is 12–6 PM. Shifting 2 heavy appliances could save another £18.",
-  thermostat:
-    "Done! Thermostat set to 19°C. At your current tariff rates, this change saves approximately £0.33 per day compared to 21°C.",
-  lights:
-    "Turning off bedroom lights now. They were consuming 40W — that's 0.04 kWh per hour saved.",
-  power:
-    "Your top consumers right now: AC Unit (1.5 kW), Thermostat (1.2 kW), Refrigerator (0.15 kW). The AC is using 53% of your current draw.",
-};
-
-function getResponse(input: string): string {
-  const lower = input.toLowerCase();
-  if (lower.includes("bill") || lower.includes("reduce") || lower.includes("save"))
-    return AI_RESPONSES.bill;
-  if (lower.includes("thermostat") || lower.includes("temperature") || lower.includes("21"))
-    return AI_RESPONSES.thermostat;
-  if (lower.includes("light") || lower.includes("bedroom"))
-    return AI_RESPONSES.lights;
-  if (lower.includes("power") || lower.includes("using") || lower.includes("most"))
-    return AI_RESPONSES.power;
-  return AI_RESPONSES.default;
-}
 
 function MessageBubble({ message }: { message: Message }) {
   const colors = useColors();
@@ -113,6 +89,32 @@ export default function AuraScreen() {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+  const sessionIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    loadChatSession()
+      .then((history) => {
+        if (!active || !history.messages.length) return;
+        sessionIdRef.current = history.sessionId;
+        setMessages(
+          history.messages
+            .map((message) => ({
+              id: message.id,
+              role: message.role,
+              content: message.content,
+              timestamp: new Date(message.created_at),
+            }))
+            .reverse(),
+        );
+      })
+      .catch(() => {
+        // Keep the welcome message if history is unavailable.
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Voice: speech-to-text fills/sends the message, text-to-speech reads replies.
   // sendMessageRef lets the voice callbacks reach the latest sendMessage without
@@ -153,8 +155,8 @@ export default function AuraScreen() {
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
-  const sendMessage = (text: string) => {
-    if (!text.trim()) return;
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || isTyping) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     const userMsg: Message = {
@@ -167,19 +169,33 @@ export default function AuraScreen() {
     setInput("");
     setIsTyping(true);
 
-    setTimeout(() => {
+    try {
+      const response = await askAura(text.trim(), sessionIdRef.current);
+      sessionIdRef.current = response.sessionId;
       const aiMsg: Message = {
-        id: (Date.now() + 1).toString(),
+        id: response.message.id,
         role: "assistant",
-        content: getResponse(text),
-        timestamp: new Date(),
+        content: response.message.content,
+        timestamp: new Date(response.message.created_at),
       };
       setMessages((prev) => [aiMsg, ...prev]);
-      setIsTyping(false);
       if (voice.voiceRepliesOn) {
         voice.speak(aiMsg.content);
       }
-    }, 1000 + Math.random() * 500);
+    } catch (caught) {
+      const aiMsg: Message = {
+        id: `error-${Date.now()}`,
+        role: "assistant",
+        content:
+          caught instanceof Error
+            ? caught.message
+            : "Aura is temporarily unavailable. Please try again.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [aiMsg, ...prev]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   sendMessageRef.current = sendMessage;

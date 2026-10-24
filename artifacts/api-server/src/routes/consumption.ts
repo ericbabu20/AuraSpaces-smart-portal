@@ -3,7 +3,7 @@ import {
   GetElectricityConsumptionResponse,
   GetGasConsumptionResponse,
 } from "@workspace/api-zod";
-import { getConsumption, OctopusError } from "../lib/octopus";
+import { getConsumption, getPrepayBalances, OctopusError } from "../lib/octopus";
 
 const router: IRouter = Router();
 
@@ -33,6 +33,14 @@ router.get("/consumption/electricity", async (req, res): Promise<void> => {
   try {
     const summary = await getConsumption("electricity", days);
     res.json(GetElectricityConsumptionResponse.parse(summary));
+  } catch (err) {
+    handleError(err, req, res);
+  }
+});
+
+router.get("/prepay", async (req, res): Promise<void> => {
+  try {
+    res.json(await getPrepayBalances());
   } catch (err) {
     handleError(err, req, res);
   }

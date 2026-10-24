@@ -37,7 +37,7 @@ export const supabase = createClient<Database>(
       autoRefreshToken: true,
       // Native apps don't receive the session in a URL fragment; the web build
       // also uses explicit sign-in flows, so this stays false everywhere.
-      detectSessionInUrl: false,
+      detectSessionInUrl: Platform.OS === "web",
     },
   },
 );

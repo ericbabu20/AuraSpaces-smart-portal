@@ -113,6 +113,44 @@ function AtAnchor({
   );
 }
 
+function formatPounds(value: number | null | undefined) {
+  if (value == null) return "—";
+  const sign = value < 0 ? "-" : "";
+  return `${sign}£${Math.abs(value).toFixed(2)}`;
+}
+
+function FuelBalanceColumn({
+  label,
+  balance,
+  color,
+  muted,
+}: {
+  label: string;
+  balance: { credit: number | null; debt: number | null } | null;
+  color: string;
+  muted: string;
+}) {
+  return (
+    <View style={styles.balanceColumn}>
+      <Text style={[styles.balanceTitle, { color }]}>{label}</Text>
+      <View style={styles.balanceFigures}>
+        <View>
+          <Text style={[styles.balanceAmount, { color }]}>
+            {formatPounds(balance?.credit)}
+          </Text>
+          <Text style={[styles.balanceCaption, { color: muted }]}>Credit</Text>
+        </View>
+        <View>
+          <Text style={[styles.balanceAmount, { color }]}>
+            {formatPounds(balance?.debt)}
+          </Text>
+          <Text style={[styles.balanceCaption, { color: muted }]}>Debt</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 export function EnergyHouseHero({ wide = false }: Props) {
   const colors = useColors();
   const { isDark } = useTheme();
@@ -124,6 +162,8 @@ export function EnergyHouseHero({ wide = false }: Props) {
     currentUsage,
     moneySaved,
     isSampleData,
+    electricityBalance,
+    gasBalance,
   } = useEnergy();
 
   const [mode, setMode] = useState<"Home" | "EV">("Home");
@@ -363,37 +403,54 @@ export function EnergyHouseHero({ wide = false }: Props) {
       {/* bottom summary card, overlapping the hero */}
       <View style={styles.cardWrap}>
         <Glass variant="regular" radius={radius.lg} style={styles.card}>
-          <View style={styles.cardTop}>
-            <View style={{ flexShrink: 1 }}>
-              <Text
-                style={[styles.bigNumber, { color: colors.foreground }]}
-                accessibilityLabel={`${bigNumber.toFixed(1)} ${bigLabel}`}
-              >
-                {bigNumber.toFixed(1)}
-              </Text>
-              <Text style={[styles.bigLabel, { color: colors.mutedForeground }]}>
-                {bigLabel}
-              </Text>
+          {electricityBalance || gasBalance ? (
+            <View style={styles.balanceRow}>
+              <FuelBalanceColumn
+                label="Electricity"
+                balance={electricityBalance}
+                color={colors.foreground}
+                muted={colors.mutedForeground}
+              />
+              <View style={[styles.balanceDivider, { backgroundColor: colors.border }]} />
+              <FuelBalanceColumn
+                label="Gas"
+                balance={gasBalance}
+                color={colors.foreground}
+                muted={colors.mutedForeground}
+              />
             </View>
-
-            <Pressable
-              onPress={() => router.push("/recommendations")}
-              accessibilityRole="button"
-              accessibilityLabel={`£${moneySaved.toFixed(0)} saved this month. View tips`}
-              style={styles.saved}
-            >
-              <Text style={[styles.savedAmount, { color: colors.foreground }]}>
-                £{moneySaved.toFixed(0)}
-              </Text>
-              <Text style={[styles.savedLabel, { color: colors.mutedForeground }]}>
-                saved this month
-              </Text>
-              <View style={styles.tipsRow}>
-                <Text style={[styles.tips, { color: colors.primary }]}>Tips</Text>
-                <Ionicons name="chevron-forward" size={12} color={colors.primary} />
+          ) : (
+            <View style={styles.cardTop}>
+              <View style={{ flexShrink: 1 }}>
+                <Text
+                  style={[styles.bigNumber, { color: colors.foreground }]}
+                  accessibilityLabel={`${bigNumber.toFixed(1)} ${bigLabel}`}
+                >
+                  {bigNumber.toFixed(1)}
+                </Text>
+                <Text style={[styles.bigLabel, { color: colors.mutedForeground }]}>
+                  {bigLabel}
+                </Text>
               </View>
-            </Pressable>
-          </View>
+              <Pressable
+                onPress={() => router.push("/recommendations")}
+                accessibilityRole="button"
+                accessibilityLabel={`£${moneySaved.toFixed(0)} saved this month. View tips`}
+                style={styles.saved}
+              >
+                <Text style={[styles.savedAmount, { color: colors.foreground }]}>
+                  £{moneySaved.toFixed(0)}
+                </Text>
+                <Text style={[styles.savedLabel, { color: colors.mutedForeground }]}>
+                  saved this month
+                </Text>
+                <View style={styles.tipsRow}>
+                  <Text style={[styles.tips, { color: colors.primary }]}>Tips</Text>
+                  <Ionicons name="chevron-forward" size={12} color={colors.primary} />
+                </View>
+              </Pressable>
+            </View>
+          )}
 
           <View style={styles.statusRow}>
             <View
@@ -468,6 +525,19 @@ const styles = StyleSheet.create({
     padding: space[5],
     gap: space[3],
   },
+  balanceRow: { flexDirection: "row", alignItems: "stretch", gap: space[4] },
+  balanceColumn: { flex: 1, gap: space[2] },
+  balanceDivider: { width: 1 },
+  balanceTitle: { fontFamily: fonts.heading, fontSize: 16, lineHeight: 22 },
+  balanceFigures: { flexDirection: "row", gap: space[4] },
+  balanceAmount: { fontFamily: fonts.heading, fontSize: 20, lineHeight: 26 },
+  balanceCaption: { fontFamily: fonts.bodyMedium, fontSize: 12, lineHeight: 16 },
+  usageRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  usageText: { fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 18 },
   cardTop: {
     flexDirection: "row",
     alignItems: "flex-end",

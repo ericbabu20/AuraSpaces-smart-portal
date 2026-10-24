@@ -25,6 +25,16 @@ export interface ConsumptionSummary {
   points: ConsumptionPoint[];
 }
 
+export interface FuelBalance {
+  credit: number | null;
+  debt: number | null;
+}
+
+export interface PrepayBalances {
+  electricity: FuelBalance | null;
+  gas: FuelBalance | null;
+}
+
 interface OctopusReading {
   consumption: number;
   interval_start: string;
@@ -164,4 +174,93 @@ export async function getConsumption(
     Math.round(points.reduce((sum, p) => sum + p.consumption, 0) * 100) / 100;
 
   return { fuel, unit: "kWh", total, points };
+}
+
+async function octopusGraphql<T>(
+  query: string,
+  variables?: Record<string, unknown>,
+): Promise<T> {
+  const apiKey = requireEnv("OCTOPUS_API_KEY");
+  const response = await fetch("https://api.octopus.energy/v1/graphql/", {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${apiKey}:`).toString("base64")}`,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+  const body = (await response.json()) as {
+    data?: T;
+    errors?: Array<{ message?: string }>;
+  };
+  if (!response.ok || body.errors?.length || !body.data) {
+    throw new OctopusError(
+      body.errors?.map((error) => error.message).filter(Boolean).join("; ") ||
+        `Octopus GraphQL responded ${response.status}`,
+      response.status === 401 || response.status === 403 ? response.status : 502,
+    );
+  }
+  return body.data;
+}
+
+function poundsFromMinorUnits(value: unknown): number | null {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return null;
+  return Math.round(amount) / 100;
+}
+
+type LedgerBalance = {
+  creditLedger?: { currentBalance?: number | null } | null;
+  debtLedger?: { currentBalance?: number | null } | null;
+} | null;
+
+function balanceFromLedgers(ledgers: LedgerBalance): FuelBalance | null {
+  if (!ledgers) return null;
+  return {
+    credit: poundsFromMinorUnits(ledgers.creditLedger?.currentBalance),
+    debt: poundsFromMinorUnits(ledgers.debtLedger?.currentBalance),
+  };
+}
+
+export async function getPrepayBalances(): Promise<PrepayBalances> {
+  const mpan = requireEnv("OCTOPUS_ELECTRICITY_MPAN");
+  const mprn = requireEnv("OCTOPUS_GAS_MPRN");
+  const data = await octopusGraphql<{
+    electricity?: {
+      meters?: Array<{ prepayLedgers?: LedgerBalance }> | null;
+    } | null;
+    gas?: {
+      meters?: Array<{ prepayLedgers?: LedgerBalance }> | null;
+    } | null;
+  }>(
+    `query Balances($mpan: ID!, $mprn: ID!) {
+      electricity: meterPoints(mpan: $mpan) {
+        meters {
+          ... on ElectricityMeterType {
+            prepayLedgers {
+              creditLedger { currentBalance }
+              debtLedger { currentBalance }
+            }
+          }
+        }
+      }
+      gas: meterPoints(mprn: $mprn) {
+        meters {
+          ... on GasMeterType {
+            prepayLedgers {
+              creditLedger { currentBalance }
+              debtLedger { currentBalance }
+            }
+          }
+        }
+      }
+    }`,
+    { mpan, mprn },
+  );
+
+  return {
+    electricity: balanceFromLedgers(data.electricity?.meters?.[0]?.prepayLedgers ?? null),
+    gas: balanceFromLedgers(data.gas?.meters?.[0]?.prepayLedgers ?? null),
+  };
 }

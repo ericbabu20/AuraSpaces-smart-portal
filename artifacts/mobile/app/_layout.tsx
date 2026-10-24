@@ -6,7 +6,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/inter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { router, Stack, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
@@ -15,8 +15,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import "@/lib/api";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { EnergyProvider } from "@/context/EnergyContext";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
@@ -28,10 +28,21 @@ const queryClient = new QueryClient();
 function RootLayoutNav() {
   const colors = useColors();
   const { isDark } = useTheme();
+  const { session, loading, passwordRecovery } = useAuth();
+  const segments = useSegments();
 
   useEffect(() => {
     SystemUI.setBackgroundColorAsync(colors.background);
   }, [colors.background]);
+
+  useEffect(() => {
+    if (loading) return;
+    const inAuth = (segments[0] as string | undefined) === "auth";
+    if (!session && !inAuth) router.replace("/auth" as never);
+    if (session && inAuth && !passwordRecovery) router.replace("/(tabs)");
+  }, [session, loading, passwordRecovery, segments]);
+
+  if (loading) return null;
 
   return (
     <>
@@ -45,6 +56,7 @@ function RootLayoutNav() {
           contentStyle: { backgroundColor: colors.background },
         }}
       >
+        <Stack.Screen name="auth" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="aura"
@@ -58,6 +70,7 @@ function RootLayoutNav() {
         <Stack.Screen name="schedule" options={{ title: "Schedule" }} />
         <Stack.Screen name="automation" options={{ title: "Automation" }} />
         <Stack.Screen name="connect" options={{ title: "Connect Device" }} />
+        <Stack.Screen name="octopus" options={{ title: "Octopus Energy" }} />
       </Stack>
     </>
   );
@@ -84,13 +97,15 @@ export default function RootLayout() {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
-            <EnergyProvider>
-              <GestureHandlerRootView>
-                <KeyboardProvider>
-                  <RootLayoutNav />
-                </KeyboardProvider>
-              </GestureHandlerRootView>
-            </EnergyProvider>
+            <AuthProvider>
+              <EnergyProvider>
+                <GestureHandlerRootView>
+                  <KeyboardProvider>
+                    <RootLayoutNav />
+                  </KeyboardProvider>
+                </GestureHandlerRootView>
+              </EnergyProvider>
+            </AuthProvider>
           </ThemeProvider>
         </QueryClientProvider>
       </ErrorBoundary>
