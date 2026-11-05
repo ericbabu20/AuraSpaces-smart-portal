@@ -65,7 +65,7 @@ export default function EnergyRing({
         <Text
           style={[
             styles.value,
-            { color: colors.foreground, fontFamily: "Inter_700Bold" },
+            { color: colors.foreground, fontFamily: "Figtree_700Bold" },
           ]}
         >
           {currentKwh.toFixed(1)}
@@ -73,7 +73,7 @@ export default function EnergyRing({
         <Text
           style={[
             styles.unit,
-            { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+            { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
           ]}
         >
           {unitLabel}
@@ -81,7 +81,7 @@ export default function EnergyRing({
         <Text
           style={[
             styles.percent,
-            { color: ringColor, fontFamily: "Inter_600SemiBold" },
+            { color: ringColor, fontFamily: "Figtree_600SemiBold" },
           ]}
         >
           {Math.round(progress * 100)}%

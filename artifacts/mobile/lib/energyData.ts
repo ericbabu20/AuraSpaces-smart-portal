@@ -60,6 +60,25 @@ export async function saveEnergyProfile(userId: string, profile: EnergyProfile) 
   );
 }
 
+export async function saveConsumption(
+  userId: string,
+  fuel: "electricity" | "gas",
+  points: Array<{ date: string; consumption: number }>,
+) {
+  const rows = points
+    .filter((point) => point.date && Number.isFinite(point.consumption))
+    .map((point) => ({
+      user_id: userId,
+      fuel,
+      usage_date: point.date,
+      kwh: Math.max(0, point.consumption),
+    }));
+  if (!rows.length) return;
+  await db.from("consumption_daily").upsert(rows, {
+    onConflict: "user_id,fuel,usage_date",
+  });
+}
+
 export async function saveDevices(userId: string, devices: Device[]) {
   await db.from("household_devices").upsert(
     devices.map((device) => ({

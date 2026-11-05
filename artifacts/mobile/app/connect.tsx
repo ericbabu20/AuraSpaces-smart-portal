@@ -1,4 +1,6 @@
+import { useEnergy } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
+import { category } from "@/theme/tokens";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
@@ -15,12 +17,12 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const CATEGORIES = [
-  { id: "climate", label: "Climate", icon: "thermometer-outline", color: "#60A5FA" },
-  { id: "lighting", label: "Lighting", icon: "bulb-outline", color: "#FBBF24" },
-  { id: "appliance", label: "Appliances", icon: "cube-outline", color: "#A78BFA" },
-  { id: "ev", label: "EV & Solar", icon: "car-outline", color: "#34D399" },
-  { id: "security", label: "Security", icon: "shield-outline", color: "#F97316" },
-  { id: "other", label: "Other", icon: "hardware-chip-outline", color: "#8B949E" },
+  { id: "climate", label: "Climate", icon: "thermometer-outline", color: category.climate },
+  { id: "lighting", label: "Lighting", icon: "bulb-outline", color: category.lighting },
+  { id: "appliance", label: "Appliances", icon: "cube-outline", color: category.appliance },
+  { id: "ev", label: "EV & Solar", icon: "car-outline", color: category.ev },
+  { id: "security", label: "Security", icon: "shield-outline", color: category.security },
+  { id: "other", label: "Other", icon: "hardware-chip-outline", color: category.other },
 ];
 
 const BRANDS: Record<string, string[]> = {
@@ -34,6 +36,7 @@ const BRANDS: Record<string, string[]> = {
 
 export default function ConnectScreen() {
   const colors = useColors();
+  const { addDevice } = useEnergy();
   const insets = useSafeAreaInsets();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
@@ -53,12 +56,12 @@ export default function ConnectScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <Text
-        style={[styles.title, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}
+        style={[styles.title, { color: colors.foreground, fontFamily: "Figtree_700Bold" }]}
       >
         Connect Device
       </Text>
       <Text
-        style={[styles.subtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}
+        style={[styles.subtitle, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}
       >
         Add a device to monitor and control from Aura
       </Text>
@@ -68,7 +71,7 @@ export default function ConnectScreen() {
       >
         <Ionicons name="search-outline" size={18} color={colors.mutedForeground} />
         <TextInput
-          style={[styles.searchInput, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
+          style={[styles.searchInput, { color: colors.foreground, fontFamily: "Figtree_400Regular" }]}
           placeholder="Search devices or brands..."
           placeholderTextColor={colors.mutedForeground}
           value={search}
@@ -77,7 +80,7 @@ export default function ConnectScreen() {
       </View>
 
       <Text
-        style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}
+        style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Figtree_500Medium" }]}
       >
         CATEGORY
       </Text>
@@ -113,7 +116,7 @@ export default function ConnectScreen() {
                 {
                   color:
                     selectedCategory === cat.id ? cat.color : colors.foreground,
-                  fontFamily: "Inter_500Medium",
+                  fontFamily: "Figtree_500Medium",
                 },
               ]}
             >
@@ -126,7 +129,7 @@ export default function ConnectScreen() {
       {selectedCategory && (
         <>
           <Text
-            style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}
+            style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Figtree_500Medium" }]}
           >
             BRAND
           </Text>
@@ -156,7 +159,7 @@ export default function ConnectScreen() {
                         selectedBrand === brand
                           ? colors.primaryForeground
                           : colors.foreground,
-                      fontFamily: "Inter_500Medium",
+                      fontFamily: "Figtree_500Medium",
                     },
                   ]}
                 >
@@ -176,12 +179,12 @@ export default function ConnectScreen() {
             <Ionicons name="wifi-outline" size={28} color={colors.primary} />
           </View>
           <Text
-            style={[styles.connectTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}
+            style={[styles.connectTitle, { color: colors.foreground, fontFamily: "Figtree_600SemiBold" }]}
           >
             Connect {selectedBrand}
           </Text>
           <Text
-            style={[styles.connectDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}
+            style={[styles.connectDesc, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}
           >
             Make sure your {selectedBrand} device is powered on and
             connected to your home Wi-Fi network before continuing.
@@ -189,14 +192,31 @@ export default function ConnectScreen() {
           <TouchableOpacity
             style={[styles.connectBtn, { backgroundColor: colors.primary }]}
             onPress={() => {
+              if (!selectedCategory || !selectedBrand) return;
+              const category = CATEGORIES.find((item) => item.id === selectedCategory);
+              if (!category) return;
+              const allowed = ["climate", "lighting", "appliance", "ev", "security", "other"] as const;
+              if (!allowed.includes(selectedCategory as (typeof allowed)[number])) return;
+              const typedCategory = selectedCategory as (typeof allowed)[number];
+              const name =
+                search.trim() ||
+                (selectedBrand === "Other"
+                  ? category.label
+                  : `${selectedBrand} ${category.label}`);
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              addDevice({
+                name,
+                category: typedCategory,
+                icon: category.icon,
+                room: "Home",
+              });
               router.back();
             }}
           >
             <Text
-              style={[styles.connectBtnText, { color: colors.primaryForeground, fontFamily: "Inter_600SemiBold" }]}
+              style={[styles.connectBtnText, { color: colors.primaryForeground, fontFamily: "Figtree_600SemiBold" }]}
             >
-              Start Setup
+              Add device
             </Text>
           </TouchableOpacity>
         </View>
@@ -208,12 +228,12 @@ export default function ConnectScreen() {
         <Ionicons name="qr-code-outline" size={20} color={colors.accent} />
         <View style={{ flex: 1 }}>
           <Text
-            style={[styles.manualTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}
+            style={[styles.manualTitle, { color: colors.foreground, fontFamily: "Figtree_600SemiBold" }]}
           >
             Scan QR or Matter code
           </Text>
           <Text
-            style={[styles.manualDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}
+            style={[styles.manualDesc, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}
           >
             Quickly add any Matter-compatible device by scanning its setup code.
           </Text>

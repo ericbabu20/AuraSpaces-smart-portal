@@ -93,7 +93,7 @@ export function Glass({
   const isDark = scheme ? scheme === "dark" : theme.isDark;
   const reduceTransparency = useReduceTransparency();
   const isClear = variant === "clear";
-  const hairline = isDark ? "rgba(255,255,255,0.14)" : "rgba(23,26,32,0.08)";
+  const hairline = isDark ? "rgba(255,255,255,0.12)" : "rgba(43,43,39,0.08)";
 
   const baseStyle: ViewStyle = {
     borderRadius: radius,
@@ -107,9 +107,9 @@ export function Glass({
         style={[
           baseStyle,
           {
-            backgroundColor: isDark ? shade.nightOverlay : shade.dayRaised,
+            backgroundColor: isDark ? shade.nightFill : shade.raised,
             borderWidth: StyleSheet.hairlineWidth,
-            borderColor: isDark ? "#3A3C40" : "#D0D1D2",
+            borderColor: isDark ? shade.nightSeparator : shade.separator,
           },
           style,
         ]}
@@ -138,10 +138,10 @@ export function Glass({
     const fill = isDark
       ? isClear
         ? "rgba(255,255,255,0.05)"
-        : "rgba(28,30,33,0.55)"
+        : "rgba(31,30,27,0.6)"
       : isClear
         ? "rgba(255,255,255,0.35)"
-        : "rgba(255,255,255,0.72)";
+        : "rgba(255,253,248,0.74)";
     const webStyle = {
       backdropFilter: isClear
         ? "blur(12px) saturate(160%)"
@@ -154,7 +154,7 @@ export function Glass({
       borderColor: hairline,
       boxShadow: isDark
         ? "0 8px 28px rgba(0,0,0,0.5)"
-        : "0 6px 24px rgba(23,26,32,0.08)",
+        : "0 6px 24px rgba(43,43,39,0.08)",
     } as unknown as ViewStyle;
 
     return (

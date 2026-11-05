@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { Router, type IRouter } from "express";
+import { HouseholdContextError, loadHouseholdContext } from "../lib/householdContext";
 
 const router: IRouter = Router();
 
@@ -47,6 +48,19 @@ router.post("/chat", async (req, res): Promise<void> => {
     created_at: now,
   });
 
+  let household = "";
+  try {
+    household = await loadHouseholdContext(req.header("authorization"));
+  } catch (caught) {
+    history.pop();
+    const messageText =
+      caught instanceof HouseholdContextError
+        ? caught.message
+        : "Aura could not read your household data, so it did not reply.";
+    res.status(503).json({ error: messageText });
+    return;
+  }
+
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
@@ -60,7 +74,7 @@ router.post("/chat", async (req, res): Promise<void> => {
           systemInstruction: {
             parts: [
               {
-                text: "You are Aura, a concise UK home-energy assistant for a prepayment customer with no solar. Never guarantee savings. Use GBP and kWh.",
+                text: `You are Aura, a concise UK home-energy assistant. Read the household record below before you write. Answer only from that record and general energy advice that does not invent this home's devices or numbers. Never guarantee savings. Use GBP and kWh.\n\n${household}`,
               },
             ],
           },

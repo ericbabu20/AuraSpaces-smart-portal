@@ -1,14 +1,18 @@
+import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
+import { fonts, radius } from "@/theme/tokens";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { usePathname, useRouter } from "expo-router";
 import React from "react";
 import {
   Image,
+  Platform,
+  Pressable,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  type ViewStyle,
 } from "react-native";
 
 type NavItem = {
@@ -53,112 +57,125 @@ function isActive(pathname: string, match: string) {
   return pathname.includes(match);
 }
 
+/** macOS-style source list: translucent, rounded selection, accent icons. */
 export default function DesktopSidebar() {
   const colors = useColors();
   const { isDark } = useTheme();
+  const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
+  const name =
+    (user?.user_metadata?.name as string | undefined) ??
+    user?.email?.split("@")[0] ??
+    "You";
+
+  const material =
+    Platform.OS === "web"
+      ? ({
+          backgroundColor: isDark
+            ? "rgba(31,30,27,0.72)"
+            : "rgba(236,231,218,0.6)",
+          backdropFilter: "blur(30px) saturate(180%)",
+          WebkitBackdropFilter: "blur(30px) saturate(180%)",
+        } as unknown as ViewStyle)
+      : { backgroundColor: colors.secondary };
+
   return (
     <View
-      style={[
-        styles.sidebar,
-        {
-          backgroundColor: colors.card,
-          borderRightColor: colors.border,
-        },
-      ]}
+      style={[styles.sidebar, material, { borderRightColor: colors.border }]}
+      role="navigation"
     >
       <View style={styles.brand}>
         <Image
-          source={require("../assets/images/logo.png")}
-          style={[styles.logo, isDark && styles.logoDark]}
+          source={
+            isDark
+              ? require("../assets/images/logo-dark.png")
+              : require("../assets/images/logo.png")
+          }
+          style={styles.logo}
           resizeMode="contain"
           accessibilityLabel="Aura Spaces"
         />
       </View>
 
+      <Text style={[styles.section, { color: colors.mutedForeground }]}>
+        Aura
+      </Text>
       <View style={styles.nav}>
         {NAV.map((item) => {
           const active = isActive(pathname, item.match);
           return (
-            <TouchableOpacity
+            <Pressable
               key={item.href}
-              style={[
+              accessibilityRole="link"
+              accessibilityState={{ selected: active }}
+              onPress={() => router.push(item.href as never)}
+              style={({ hovered, pressed }) => [
                 styles.navItem,
-                active && { backgroundColor: colors.secondary },
+                (hovered || pressed) && !active
+                  ? { backgroundColor: colors.muted }
+                  : null,
+                active && { backgroundColor: colors.card },
               ]}
-              onPress={() => router.push(item.href as any)}
-              activeOpacity={0.75}
             >
               <Feather
                 name={item.icon}
-                size={18}
-                color={active ? colors.foreground : colors.mutedForeground}
+                size={17}
+                color={active ? colors.primary : colors.mutedForeground}
               />
               <Text
                 style={[
                   styles.navLabel,
                   {
-                    color: active ? colors.foreground : colors.mutedForeground,
-                    fontFamily: active
-                      ? "Inter_600SemiBold"
-                      : "Inter_500Medium",
+                    color: colors.foreground,
+                    fontFamily: active ? fonts.bodySemiBold : fonts.bodyMedium,
                   },
                 ]}
               >
                 {item.label}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           );
         })}
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.auraBtn, { backgroundColor: colors.primary }]}
+        <Pressable
+          accessibilityRole="button"
           onPress={() => router.push("/aura")}
-          activeOpacity={0.85}
+          style={({ pressed }) => [
+            styles.auraBtn,
+            { backgroundColor: colors.primary },
+            pressed && { transform: [{ scale: 0.98 }] },
+          ]}
         >
           <Ionicons name="mic" size={16} color={colors.primaryForeground} />
-          <Text
-            style={[
-              styles.auraBtnText,
-              {
-                color: colors.primaryForeground,
-                fontFamily: "Inter_600SemiBold",
-              },
-            ]}
-          >
+          <Text style={[styles.auraBtnText, { color: colors.primaryForeground }]}>
             Ask Aura
           </Text>
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
-          style={styles.profileRow}
+        <Pressable
+          accessibilityRole="link"
+          style={({ hovered }) => [
+            styles.profileRow,
+            hovered && { backgroundColor: colors.muted },
+          ]}
           onPress={() => router.push("/(tabs)/profile")}
-          activeOpacity={0.75}
         >
-          <View style={[styles.avatar, { backgroundColor: colors.secondary }]}>
-            <Text
-              style={[
-                styles.avatarText,
-                { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
-              ]}
-            >
-              A
+          <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+            <Text style={[styles.avatarText, { color: colors.primaryForeground }]}>
+              {name.charAt(0).toUpperCase()}
             </Text>
           </View>
           <Text
-            style={[
-              styles.profileName,
-              { color: colors.foreground, fontFamily: "Inter_500Medium" },
-            ]}
+            style={[styles.profileName, { color: colors.foreground }]}
             numberOfLines={1}
           >
-            Alex
+            {name}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
@@ -166,23 +183,27 @@ export default function DesktopSidebar() {
 
 const styles = StyleSheet.create({
   sidebar: {
-    width: 220,
-    paddingTop: 28,
-    paddingHorizontal: 14,
-    paddingBottom: 20,
+    width: 232,
+    paddingTop: 24,
+    paddingHorizontal: 10,
+    paddingBottom: 16,
     borderRightWidth: StyleSheet.hairlineWidth,
-    justifyContent: "flex-start",
   },
   brand: {
     paddingHorizontal: 10,
-    marginBottom: 32,
+    marginBottom: 24,
   },
   logo: {
-    height: 28,
-    width: 120,
+    height: 30,
+    width: 70,
   },
-  logoDark: {
-    tintColor: "#F2F2F2",
+  section: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: 11,
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+    paddingHorizontal: 10,
+    marginBottom: 6,
   },
   nav: {
     gap: 2,
@@ -191,17 +212,16 @@ const styles = StyleSheet.create({
   navItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    paddingVertical: 13,
-    paddingHorizontal: 14,
+    gap: 10,
+    minHeight: 32,
+    paddingHorizontal: 10,
     borderRadius: 8,
   },
   navLabel: {
     fontSize: 14,
-    letterSpacing: 0.2,
   },
   footer: {
-    gap: 14,
+    gap: 10,
     paddingTop: 12,
   },
   auraBtn: {
@@ -209,31 +229,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    borderRadius: 8,
-    paddingVertical: 13,
+    borderRadius: radius.md,
+    minHeight: 40,
     paddingHorizontal: 14,
   },
   auraBtnText: {
-    fontSize: 13,
-    letterSpacing: 0.3,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: 14,
   },
   profileRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    paddingHorizontal: 6,
+    padding: 6,
+    borderRadius: 8,
   },
   avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
   },
   avatarText: {
+    fontFamily: fonts.bodySemiBold,
     fontSize: 12,
   },
   profileName: {
+    fontFamily: fonts.bodyMedium,
     fontSize: 13,
     flex: 1,
   },

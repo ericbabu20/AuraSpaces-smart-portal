@@ -1,53 +1,53 @@
 /**
- * Aura Spaces colour palettes, built from theme/tokens.ts (Tesla-inspired).
- * - light: clean white / light-grey "normal" mode
- * - dark:  true-black night mode
- * Blue is the single accent. Red (`destructive`) is for warnings only.
+ * Aura Spaces colour palettes, built from theme/tokens.ts.
+ * Structured like Apple's semantic colours: a warm grouped background,
+ * white (or raised charcoal) cards, label / secondary label, separators.
+ * Koi is the single accent. Red (`destructive`) is for warnings only.
  */
 import { brand, radius as radiusTokens, semantic, shade } from "@/theme/tokens";
 
 const colors = {
   light: {
-    text: shade.textDark,
-    tint: brand.accent,
-    background: shade.dayBg,
-    foreground: shade.textDark,
-    card: shade.dayRaised,
-    cardForeground: shade.textDark,
-    primary: brand.accent,
+    text: shade.ink,
+    tint: brand.koiDeep,
+    background: shade.canvas,
+    foreground: shade.ink,
+    card: shade.raised,
+    cardForeground: shade.ink,
+    primary: brand.koiDeep,
     primaryForeground: shade.white,
-    secondary: "#EAEAEA",
-    secondaryForeground: shade.textDark,
-    muted: "#EAEAEA",
-    mutedForeground: "#5C5E62",
-    accent: brand.accent,
+    secondary: shade.fill,
+    secondaryForeground: shade.ink,
+    muted: shade.fill,
+    mutedForeground: brand.duckWillow,
+    accent: brand.koi,
     accentForeground: shade.white,
     destructive: semantic.warning,
     destructiveForeground: shade.white,
-    border: "#DCDDDE",
-    input: "#EAEAEA",
+    border: shade.separator,
+    input: shade.fill,
   },
   dark: {
-    text: "#F2F2F2",
-    tint: brand.accent,
+    text: shade.nightInk,
+    tint: brand.koi,
     background: shade.nightBg,
-    foreground: "#F2F2F2",
+    foreground: shade.nightInk,
     card: shade.nightRaised,
-    cardForeground: "#F2F2F2",
-    primary: brand.accent,
+    cardForeground: shade.nightInk,
+    primary: brand.koi,
     primaryForeground: shade.white,
-    secondary: shade.nightOverlay,
-    secondaryForeground: "#F2F2F2",
-    muted: shade.nightOverlay,
-    mutedForeground: "#8E9094",
-    accent: brand.accent,
+    secondary: shade.nightFill,
+    secondaryForeground: shade.nightInk,
+    muted: shade.nightFill,
+    mutedForeground: shade.nightMuted,
+    accent: brand.koi,
     accentForeground: shade.white,
-    destructive: "#FF4D5E",
+    destructive: "#FF6B6B",
     destructiveForeground: shade.white,
-    border: "#2A2C2F",
-    input: shade.nightOverlay,
+    border: shade.nightSeparator,
+    input: shade.nightFill,
   },
-  radius: radiusTokens.sm,
+  radius: radiusTokens.md,
 };
 
 export default colors;

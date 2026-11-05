@@ -126,11 +126,11 @@ export default function OctopusScreen() {
 
 const styles = StyleSheet.create({
   content: { padding: 20, paddingBottom: 48, maxWidth: 620, width: "100%", alignSelf: "center" },
-  title: { fontFamily: "Inter_700Bold", fontSize: 26 },
-  help: { fontFamily: "Inter_400Regular", fontSize: 14, lineHeight: 21, marginTop: 8, marginBottom: 20 },
+  title: { fontFamily: "Figtree_700Bold", fontSize: 26 },
+  help: { fontFamily: "Figtree_400Regular", fontSize: 14, lineHeight: 21, marginTop: 8, marginBottom: 20 },
   card: { borderWidth: 1, borderRadius: 14, padding: 18, gap: 14 },
-  label: { fontFamily: "Inter_500Medium", fontSize: 13, marginBottom: 6 },
-  input: { height: 48, borderWidth: 1, borderRadius: 8, paddingHorizontal: 13, fontFamily: "Inter_400Regular" },
+  label: { fontFamily: "Figtree_500Medium", fontSize: 13, marginBottom: 6 },
+  input: { height: 48, borderWidth: 1, borderRadius: 8, paddingHorizontal: 13, fontFamily: "Figtree_400Regular" },
   button: { height: 50, borderRadius: 8, alignItems: "center", justifyContent: "center", marginTop: 4 },
-  buttonText: { fontFamily: "Inter_600SemiBold", fontSize: 15 },
+  buttonText: { fontFamily: "Figtree_600SemiBold", fontSize: 15 },
 });

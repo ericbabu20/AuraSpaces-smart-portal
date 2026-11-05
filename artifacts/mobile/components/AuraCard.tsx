@@ -15,15 +15,15 @@ const AURA_PROMPTS = [
 ];
 
 /**
- * Aura AI entry card: dark "Duck Willow" surface with glass chips and one
- * koi call-to-action. Always dark, in both light and dark mode.
+ * Aura AI entry card: Duck Willow surface with glass chips and one koi
+ * call-to-action. Same look in light and dark mode.
  */
 export function AuraCard() {
   const open = () => router.push("/aura");
 
   return (
     <LinearGradient
-      colors={["#1E2024", "#050506"]}
+      colors={[brand.duckWillow, "#3A3B31"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.card}
@@ -31,7 +31,7 @@ export function AuraCard() {
       {/* faint koi glow in the corner gives the glass something to refract */}
       <LinearGradient
         pointerEvents="none"
-        colors={["rgba(62,106,225,0.35)", "transparent"]}
+        colors={["rgba(217,122,67,0.45)", "transparent"]}
         start={{ x: 1, y: 0 }}
         end={{ x: 0.3, y: 0.7 }}
         style={StyleSheet.absoluteFill}
@@ -105,12 +105,12 @@ const styles = StyleSheet.create({
     backgroundColor: brand.positive,
   },
   onlineText: {
-    color: brand.paper,
+    color: shade.nightInk,
     fontFamily: fonts.bodyMedium,
     fontSize: 12,
   },
   title: {
-    color: brand.paper,
+    color: shade.nightInk,
     fontFamily: fonts.headingBold,
     letterSpacing: -0.5,
     fontSize: 28,
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     marginTop: space[4],
   },
   subtitle: {
-    color: "#A8ABB0",
+    color: brand.chanoyu,
     fontFamily: fonts.body,
     fontSize: 15,
     lineHeight: 22,
@@ -129,8 +129,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: space[2],
-    backgroundColor: brand.accent,
-    borderRadius: radius.sm,
+    backgroundColor: brand.koi,
+    borderRadius: radius.md,
     paddingVertical: 14,
     paddingHorizontal: space[5],
     marginTop: space[5],

@@ -1,6 +1,7 @@
 import { ActivityItem, useEnergy } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
 import { useTabContentInsets } from "@/hooks/useTabContentInsets";
+import { brand, category, semantic } from "@/theme/tokens";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -21,10 +22,10 @@ function formatRelative(date: Date): string {
 }
 
 const TYPE_COLORS: Record<ActivityItem["type"], string> = {
-  device: "#60A5FA",
-  automation: "#A78BFA",
-  savings: "#34D399",
-  alert: "#FBBF24",
+  device: category.climate,
+  automation: category.automation,
+  savings: semantic.positive,
+  alert: brand.koi,
 };
 
 function ActivityRow({ item }: { item: ActivityItem }) {
@@ -42,7 +43,7 @@ function ActivityRow({ item }: { item: ActivityItem }) {
         <Text
           style={[
             styles.rowText,
-            { color: colors.foreground, fontFamily: "Inter_500Medium" },
+            { color: colors.foreground, fontFamily: "Figtree_500Medium" },
           ]}
         >
           {item.description}
@@ -50,7 +51,7 @@ function ActivityRow({ item }: { item: ActivityItem }) {
         <Text
           style={[
             styles.rowTime,
-            { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+            { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
           ]}
         >
           {formatRelative(item.timestamp)}
@@ -78,7 +79,7 @@ export default function ActivityScreen() {
             <Text
               style={[
                 styles.title,
-                { color: colors.foreground, fontFamily: "Inter_700Bold" },
+                { color: colors.foreground, fontFamily: "Figtree_700Bold" },
               ]}
             >
               Activity
@@ -105,7 +106,7 @@ export default function ActivityScreen() {
                       styles.savingsValue,
                       {
                         color: colors.primary,
-                        fontFamily: "Inter_700Bold",
+                        fontFamily: "Figtree_700Bold",
                       },
                     ]}
                   >
@@ -116,7 +117,7 @@ export default function ActivityScreen() {
                       styles.savingsLabel,
                       {
                         color: colors.mutedForeground,
-                        fontFamily: "Inter_400Regular",
+                        fontFamily: "Figtree_400Regular",
                       },
                     ]}
                   >
@@ -128,17 +129,17 @@ export default function ActivityScreen() {
                 style={[
                   styles.savingsCard,
                   {
-                    backgroundColor: "#22C55E18",
-                    borderColor: "#22C55E30",
+                    backgroundColor: `${semantic.positive}18`,
+                    borderColor: `${semantic.positive}30`,
                   },
                 ]}
               >
-                <Ionicons name="leaf-outline" size={28} color="#22C55E" />
+                <Ionicons name="leaf-outline" size={28} color={semantic.positive} />
                 <View>
                   <Text
                     style={[
                       styles.savingsValue,
-                      { color: "#22C55E", fontFamily: "Inter_700Bold" },
+                      { color: semantic.positive, fontFamily: "Figtree_700Bold" },
                     ]}
                   >
                     {carbonOffset.toFixed(1)} kg
@@ -148,7 +149,7 @@ export default function ActivityScreen() {
                       styles.savingsLabel,
                       {
                         color: colors.mutedForeground,
-                        fontFamily: "Inter_400Regular",
+                        fontFamily: "Figtree_400Regular",
                       },
                     ]}
                   >
@@ -179,7 +180,7 @@ export default function ActivityScreen() {
                       styles.legendLabel,
                       {
                         color: colors.mutedForeground,
-                        fontFamily: "Inter_400Regular",
+                        fontFamily: "Figtree_400Regular",
                       },
                     ]}
                   >
@@ -192,7 +193,7 @@ export default function ActivityScreen() {
             <Text
               style={[
                 styles.sectionTitle,
-                { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
+                { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
               ]}
             >
               Recent

@@ -1,5 +1,6 @@
 import { useColors } from "@/hooks/useColors";
 import { Device } from "@/context/EnergyContext";
+import { category } from "@/theme/tokens";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React from "react";
@@ -12,10 +13,10 @@ interface DeviceCardProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  climate: "#60A5FA",
-  lighting: "#FBBF24",
-  appliance: "#A78BFA",
-  ev: "#34D399",
+  climate: category.climate,
+  lighting: category.lighting,
+  appliance: category.appliance,
+  ev: category.ev,
 };
 
 export default function DeviceCard({
@@ -72,7 +73,7 @@ export default function DeviceCard({
             styles.name,
             {
               color: device.isOn ? colors.foreground : colors.mutedForeground,
-              fontFamily: "Inter_600SemiBold",
+              fontFamily: "Figtree_600SemiBold",
             },
           ]}
           numberOfLines={1}
@@ -84,7 +85,7 @@ export default function DeviceCard({
             styles.room,
             {
               color: colors.mutedForeground,
-              fontFamily: "Inter_400Regular",
+              fontFamily: "Figtree_400Regular",
             },
           ]}
         >

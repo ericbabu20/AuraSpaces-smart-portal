@@ -34,12 +34,12 @@ export default function AutomationScreen() {
       <View style={styles.headerRow}>
         <View>
           <Text
-            style={[styles.title, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}
+            style={[styles.title, { color: colors.foreground, fontFamily: "Figtree_700Bold" }]}
           >
             Automation
           </Text>
           <Text
-            style={[styles.subtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}
+            style={[styles.subtitle, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}
           >
             {activeCount} of {automations.length} rules active
           </Text>
@@ -55,12 +55,12 @@ export default function AutomationScreen() {
         <Ionicons name="git-merge-outline" size={24} color={colors.primary} />
         <View>
           <Text
-            style={[styles.summaryTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}
+            style={[styles.summaryTitle, { color: colors.foreground, fontFamily: "Figtree_600SemiBold" }]}
           >
             {activeCount} automations running
           </Text>
           <Text
-            style={[styles.summaryDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}
+            style={[styles.summaryDesc, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}
           >
             Saving ~£24/month passively
           </Text>
@@ -100,19 +100,19 @@ export default function AutomationScreen() {
                 styles.ruleName,
                 {
                   color: rule.isEnabled ? colors.foreground : colors.mutedForeground,
-                  fontFamily: "Inter_600SemiBold",
+                  fontFamily: "Figtree_600SemiBold",
                 },
               ]}
             >
               {rule.name}
             </Text>
             <Text
-              style={[styles.ruleTrigger, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}
+              style={[styles.ruleTrigger, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}
             >
               When: {rule.trigger}
             </Text>
             <Text
-              style={[styles.ruleAction, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}
+              style={[styles.ruleAction, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}
             >
               Then: {rule.action}
             </Text>
@@ -133,10 +133,10 @@ export default function AutomationScreen() {
       <View style={[styles.infoCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <Ionicons name="flash-outline" size={20} color={colors.accent} />
         <View style={{ flex: 1 }}>
-          <Text style={[styles.infoTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+          <Text style={[styles.infoTitle, { color: colors.foreground, fontFamily: "Figtree_600SemiBold" }]}>
             How automation works
           </Text>
-          <Text style={[styles.infoText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+          <Text style={[styles.infoText, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}>
             Aura monitors your home's energy usage and automatically activates
             rules to minimize consumption during peak hours, saving you money
             without any manual effort.

@@ -1,5 +1,6 @@
 import { useEnergy } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
+import { brand, category, semantic } from "@/theme/tokens";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React from "react";
@@ -20,10 +21,10 @@ const MODES: {
   label: string;
   color: string;
 }[] = [
-  { key: "cool", icon: "snow-outline", label: "Cool", color: "#60A5FA" },
-  { key: "heat", icon: "flame-outline", label: "Heat", color: "#F97316" },
-  { key: "fan", icon: "leaf-outline", label: "Fan", color: "#34D399" },
-  { key: "off", icon: "power-outline", label: "Off", color: "#8B949E" },
+  { key: "cool", icon: "snow-outline", label: "Cool", color: category.climate },
+  { key: "heat", icon: "flame-outline", label: "Heat", color: brand.koi },
+  { key: "fan", icon: "leaf-outline", label: "Fan", color: semantic.positive },
+  { key: "off", icon: "power-outline", label: "Off", color: category.other },
 ];
 
 function ThermostatDial({ temp, mode }: { temp: number; mode: string }) {
@@ -77,10 +78,10 @@ function ThermostatDial({ temp, mode }: { temp: number; mode: string }) {
         />
       </Svg>
       <View style={styles.dialCenter}>
-        <Text style={[styles.tempValue, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+        <Text style={[styles.tempValue, { color: colors.foreground, fontFamily: "Figtree_700Bold" }]}>
           {temp}°C
         </Text>
-        <Text style={[styles.modeLabel, { color: modeInfo.color, fontFamily: "Inter_500Medium" }]}>
+        <Text style={[styles.modeLabel, { color: modeInfo.color, fontFamily: "Figtree_500Medium" }]}>
           {modeInfo.label}
         </Text>
       </View>
@@ -120,12 +121,12 @@ export default function ThermostatScreen() {
       showsVerticalScrollIndicator={false}
     >
       <Text
-        style={[styles.title, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}
+        style={[styles.title, { color: colors.foreground, fontFamily: "Figtree_700Bold" }]}
       >
         Thermostat
       </Text>
       <Text
-        style={[styles.subtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}
+        style={[styles.subtitle, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}
       >
         Living Room · 1.2 kW active
       </Text>
@@ -140,10 +141,10 @@ export default function ThermostatScreen() {
             <Ionicons name="remove" size={28} color={colors.foreground} />
           </TouchableOpacity>
           <View style={styles.currentTemp}>
-            <Text style={[styles.currentTempLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+            <Text style={[styles.currentTempLabel, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}>
               Target
             </Text>
-            <Text style={[styles.currentTempValue, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+            <Text style={[styles.currentTempValue, { color: colors.foreground, fontFamily: "Figtree_700Bold" }]}>
               {thermostatTemp}°C
             </Text>
           </View>
@@ -156,7 +157,7 @@ export default function ThermostatScreen() {
         </View>
       </View>
 
-      <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+      <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Figtree_500Medium" }]}>
         MODE
       </Text>
       <View style={styles.modesRow}>
@@ -189,7 +190,7 @@ export default function ThermostatScreen() {
                 styles.modeBtnLabel,
                 {
                   color: thermostatMode === mode.key ? mode.color : colors.mutedForeground,
-                  fontFamily: "Inter_500Medium",
+                  fontFamily: "Figtree_500Medium",
                 },
               ]}
             >
@@ -199,7 +200,7 @@ export default function ThermostatScreen() {
         ))}
       </View>
 
-      <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+      <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Figtree_500Medium" }]}>
         DAILY SCHEDULE
       </Text>
       <View style={[styles.scheduleCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -208,13 +209,13 @@ export default function ThermostatScreen() {
             key={item.label}
             style={[styles.scheduleRow, { borderBottomColor: colors.border, borderBottomWidth: i < scheduleItems.length - 1 ? 1 : 0 }]}
           >
-            <Text style={[styles.scheduleLabel, { color: colors.foreground, fontFamily: "Inter_500Medium" }]}>
+            <Text style={[styles.scheduleLabel, { color: colors.foreground, fontFamily: "Figtree_500Medium" }]}>
               {item.label}
             </Text>
-            <Text style={[styles.scheduleTime, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+            <Text style={[styles.scheduleTime, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}>
               {item.time}
             </Text>
-            <Text style={[styles.scheduleTemp, { color: colors.primary, fontFamily: "Inter_700Bold" }]}>
+            <Text style={[styles.scheduleTemp, { color: colors.primary, fontFamily: "Figtree_700Bold" }]}>
               {item.temp}°C
             </Text>
           </View>

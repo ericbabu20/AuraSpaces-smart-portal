@@ -1,5 +1,6 @@
 import type { Session, User } from "@supabase/supabase-js";
 import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
 import React, {
   createContext,
   useCallback,
@@ -11,6 +12,8 @@ import React, {
 import { Platform } from "react-native";
 
 import { supabase } from "@/lib/supabase";
+
+WebBrowser.maybeCompleteAuthSession();
 
 type SignUpInput = {
   email: string;
@@ -24,6 +27,7 @@ type AuthContextValue = {
   loading: boolean;
   passwordRecovery: boolean;
   signIn: (email: string, password: string) => Promise<string | null>;
+  signInWithGoogle: () => Promise<string | null>;
   signUp: (input: SignUpInput) => Promise<string | null>;
   sendPasswordReset: (email: string) => Promise<string | null>;
   updatePassword: (password: string) => Promise<string | null>;
@@ -82,6 +86,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const signInWithGoogle = useCallback(async () => {
+    const redirectTo =
+      Platform.OS === "web" && typeof window !== "undefined"
+        ? `${window.location.origin}/auth`
+        : Linking.createURL("auth");
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+        skipBrowserRedirect: true,
+        queryParams: { prompt: "select_account" },
+      },
+    });
+    if (error) return friendlyAuthError(error.message);
+    if (!data.url) return "Google sign-in did not start. Try again.";
+
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      try {
+        const probe = await fetch(data.url);
+        if (!probe.ok) {
+          const body = (await probe.json().catch(() => null)) as {
+            msg?: string;
+            message?: string;
+          } | null;
+          return friendlyAuthError(
+            body?.msg || body?.message || "Google sign-in failed.",
+          );
+        }
+      } catch {
+        // Google's own page can block this check. The redirect below still works.
+      }
+      window.location.assign(data.url);
+      return null;
+    }
+
+    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+    if (result.type !== "success") return null;
+
+    const returned = new URL(result.url);
+    const code = returned.searchParams.get("code");
+    if (code) {
+      const exchanged = await supabase.auth.exchangeCodeForSession(code);
+      return exchanged.error ? friendlyAuthError(exchanged.error.message) : null;
+    }
+    const hash = new URLSearchParams(returned.hash.replace(/^#/, ""));
+    const accessToken = hash.get("access_token");
+    const refreshToken = hash.get("refresh_token");
+    if (accessToken && refreshToken) {
+      const session = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+      return session.error ? friendlyAuthError(session.error.message) : null;
+    }
+    return "Google did not return a sign-in. Try again.";
+  }, []);
+
   const signIn = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
@@ -130,6 +192,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       passwordRecovery,
       signIn,
+      signInWithGoogle,
       signUp,
       sendPasswordReset,
       updatePassword,
@@ -140,6 +203,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       passwordRecovery,
       signIn,
+      signInWithGoogle,
       signUp,
       sendPasswordReset,
       updatePassword,
@@ -148,6 +212,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+function friendlyAuthError(message: string): string {
+  if (/provider is not enabled|unsupported provider/i.test(message)) {
+    return "Google sign-in is not turned on in Supabase yet. In the Supabase dashboard open Authentication, then Providers, then Google, and paste your Google client ID and secret.";
+  }
+  return message;
 }
 
 export function useAuth() {

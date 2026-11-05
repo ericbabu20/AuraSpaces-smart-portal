@@ -14,10 +14,19 @@ type ChatResponse = {
 
 const localApi = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, "");
 
+async function authHeader(): Promise<Record<string, string>> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function askLocalAura(message: string, sessionId?: string | null) {
   const response = await fetch(`${localApi}/api/chat`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeader()),
+    },
     body: JSON.stringify({ message, sessionId: sessionId ?? undefined }),
   });
   const body = await response.json().catch(() => ({}));

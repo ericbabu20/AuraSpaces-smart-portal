@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getConsumption, getPrepayBalances, type FuelBalance } from "@/lib/backend";
 import {
   loadEnergyState,
+  saveConsumption,
   saveDevices,
   saveEnergyProfile,
 } from "@/lib/energyData";
@@ -13,7 +14,7 @@ import {
 export interface Device {
   id: string;
   name: string;
-  category: "climate" | "lighting" | "appliance" | "ev";
+  category: "climate" | "lighting" | "appliance" | "ev" | "security" | "other";
   isOn: boolean;
   powerDraw: number;
   icon: string;
@@ -66,6 +67,12 @@ interface EnergyContextType {
   energyProfile: EnergyProfile;
   setEnergyProfile: (patch: Partial<EnergyProfile>) => void;
   devices: Device[];
+  addDevice: (input: {
+    name: string;
+    category: Device["category"];
+    icon: string;
+    room?: string;
+  }) => void;
   toggleDevice: (id: string) => void;
   recommendations: Recommendation[];
   activity: ActivityItem[];
@@ -93,72 +100,6 @@ interface EnergyContextType {
 }
 
 const EnergyContext = createContext<EnergyContextType | null>(null);
-
-const INITIAL_DEVICES: Device[] = [
-  {
-    id: "1",
-    name: "Thermostat",
-    category: "climate",
-    isOn: true,
-    powerDraw: 1200,
-    icon: "thermometer-outline",
-    room: "Living Room",
-  },
-  {
-    id: "2",
-    name: "Living Room Lights",
-    category: "lighting",
-    isOn: true,
-    powerDraw: 60,
-    icon: "bulb-outline",
-    room: "Living Room",
-  },
-  {
-    id: "3",
-    name: "Bedroom Lights",
-    category: "lighting",
-    isOn: false,
-    powerDraw: 40,
-    icon: "bulb-outline",
-    room: "Bedroom",
-  },
-  {
-    id: "4",
-    name: "Washing Machine",
-    category: "appliance",
-    isOn: false,
-    powerDraw: 500,
-    icon: "water-outline",
-    room: "Laundry",
-  },
-  {
-    id: "5",
-    name: "Refrigerator",
-    category: "appliance",
-    isOn: true,
-    powerDraw: 150,
-    icon: "cube-outline",
-    room: "Kitchen",
-  },
-  {
-    id: "6",
-    name: "EV Charger",
-    category: "ev",
-    isOn: false,
-    powerDraw: 7200,
-    icon: "car-outline",
-    room: "Garage",
-  },
-  {
-    id: "7",
-    name: "AC Unit",
-    category: "climate",
-    isOn: true,
-    powerDraw: 1500,
-    icon: "snow-outline",
-    room: "Bedroom",
-  },
-];
 
 const RECOMMENDATIONS: Recommendation[] = [
   {
@@ -305,7 +246,7 @@ const FALLBACK_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function EnergyProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [devices, setDevices] = useState<Device[]>(INITIAL_DEVICES);
+  const [devices, setDevices] = useState<Device[]>([]);
   const [automations, setAutomations] =
     useState<AutomationRule[]>(AUTOMATIONS);
   const [energyProfile, setEnergyProfileState] =
@@ -321,16 +262,30 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
       loadEnergyState(user.id)
         .then((cloud) => {
           if (cloud.profile) setEnergyProfileState(cloud.profile);
-          if (cloud.devices.length) {
-            setDevices(cloud.devices);
-          } else {
-            void saveDevices(user.id, INITIAL_DEVICES);
-          }
+          setDevices(cloud.devices);
         })
         .catch(() => {
           // Offline/local mode keeps the cached state below.
         });
     }
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    void (async () => {
+      for (const fuel of ["electricity", "gas"] as const) {
+        try {
+          const data = await getConsumption(fuel, 31);
+          if (!cancelled) await saveConsumption(user.id, fuel, data.points ?? []);
+        } catch {
+          // The Home chart still uses the live reading if the save fails.
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [user?.id]);
 
   const loadState = async () => {
@@ -351,6 +306,29 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
       if (mode)
         setThermostatModeState(mode as "cool" | "heat" | "fan" | "off");
     } catch {}
+  };
+
+  const addDevice = (input: {
+    name: string;
+    category: Device["category"];
+    icon: string;
+    room?: string;
+  }) => {
+    const device: Device = {
+      id: Date.now().toString(),
+      name: input.name.trim(),
+      category: input.category,
+      isOn: false,
+      powerDraw: 0,
+      icon: input.icon,
+      room: input.room?.trim() || "Home",
+    };
+    if (!device.name) return;
+    setDevices((prev) => {
+      const updated = [...prev, device];
+      if (user) void saveDevices(user.id, updated);
+      return updated;
+    });
   };
 
   const toggleDevice = async (id: string) => {
@@ -464,6 +442,7 @@ export function EnergyProvider({ children }: { children: React.ReactNode }) {
         energyProfile,
         setEnergyProfile,
         devices,
+        addDevice,
         toggleDevice,
         recommendations: RECOMMENDATIONS,
         activity: ACTIVITY,

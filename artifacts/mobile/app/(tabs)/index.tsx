@@ -1,11 +1,11 @@
 import AuraCard from "@/components/AuraCard";
 import EnergyHouseHero from "@/components/EnergyHouseHero";
 import HomeWideDashboard from "@/components/HomeWideDashboard";
+import { useAuth } from "@/context/AuthContext";
 import { useEnergy } from "@/context/EnergyContext";
-import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
 import { useIsWideLayout } from "@/hooks/useIsWideLayout";
-import { semantic } from "@/theme/tokens";
+import { category, radius, semantic } from "@/theme/tokens";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -49,7 +49,7 @@ function MiniBars({
                 styles.barLabel,
                 {
                   color: colors.mutedForeground,
-                  fontFamily: "Inter_400Regular",
+                  fontFamily: "Figtree_400Regular",
                 },
               ]}
               numberOfLines={1}
@@ -65,8 +65,14 @@ function MiniBars({
 
 export default function HomeScreen() {
   const colors = useColors();
-  const { isDark } = useTheme();
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
+  const rawName =
+    (user?.user_metadata?.full_name as string | undefined)?.trim() ||
+    (user?.user_metadata?.name as string | undefined)?.trim() ||
+    user?.email?.split("@")[0]?.trim() ||
+    "there";
+  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const isWide = useIsWideLayout();
   const {
     currentUsage,
@@ -125,12 +131,18 @@ export default function HomeScreen() {
     >
       {/* Top bar */}
       <View style={styles.topBar}>
-        <Image
-          source={require("../../assets/images/logo.png")}
-          style={[styles.logo, isDark && styles.logoDark]}
-          resizeMode="contain"
-          accessibilityLabel="Aura Spaces"
-        />
+        <View style={styles.greeting}>
+          <Image
+            source={require("../../assets/images/logomark.png")}
+            style={styles.mark}
+            resizeMode="contain"
+            accessibilityLabel="Aura Spaces"
+          />
+          <Text style={styles.greetingText} numberOfLines={1}>
+            <Text style={{ color: colors.mutedForeground }}>Welcome, </Text>
+            <Text style={{ color: colors.foreground }}>{displayName}</Text>
+          </Text>
+        </View>
         <TouchableOpacity
           onPress={() => router.push("/connect")}
           style={[
@@ -160,7 +172,7 @@ export default function HomeScreen() {
           <Text
             style={[
               styles.cardTitle,
-              { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
+              { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
             ]}
           >
             Today
@@ -184,7 +196,7 @@ export default function HomeScreen() {
                       range === tab
                         ? colors.foreground
                         : colors.mutedForeground,
-                    fontFamily: "Inter_500Medium",
+                    fontFamily: "Figtree_500Medium",
                   }}
                 >
                   {tab}
@@ -196,7 +208,7 @@ export default function HomeScreen() {
         <Text
           style={{
             color: colors.foreground,
-            fontFamily: "Inter_600SemiBold",
+            fontFamily: "Figtree_600SemiBold",
             fontSize: 14,
             marginBottom: 10,
           }}
@@ -211,7 +223,7 @@ export default function HomeScreen() {
         <Text
           style={{
             color: colors.foreground,
-            fontFamily: "Inter_600SemiBold",
+            fontFamily: "Figtree_600SemiBold",
             fontSize: 14,
             marginTop: 16,
             marginBottom: 10,
@@ -239,7 +251,7 @@ export default function HomeScreen() {
           <Text
             style={{
               color: colors.primary,
-              fontFamily: "Inter_500Medium",
+              fontFamily: "Figtree_500Medium",
               fontSize: 13,
             }}
           >
@@ -259,7 +271,7 @@ export default function HomeScreen() {
           <Text
             style={[
               styles.cardTitle,
-              { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
+              { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
             ]}
           >
             EV charging
@@ -283,7 +295,7 @@ export default function HomeScreen() {
                       evUnit === unit
                         ? colors.foreground
                         : colors.mutedForeground,
-                    fontFamily: "Inter_500Medium",
+                    fontFamily: "Figtree_500Medium",
                   }}
                 >
                   {unit}
@@ -295,7 +307,7 @@ export default function HomeScreen() {
         <Text
           style={{
             color: colors.foreground,
-            fontFamily: "Inter_700Bold",
+            fontFamily: "Figtree_700Bold",
             fontSize: 26,
           }}
         >
@@ -306,7 +318,7 @@ export default function HomeScreen() {
         <Text
           style={{
             color: colors.mutedForeground,
-            fontFamily: "Inter_400Regular",
+            fontFamily: "Figtree_400Regular",
             fontSize: 13,
             marginTop: 6,
           }}
@@ -328,7 +340,7 @@ export default function HomeScreen() {
           <Text
             style={[
               styles.cardTitle,
-              { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
+              { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
             ]}
           >
             Devices
@@ -337,7 +349,7 @@ export default function HomeScreen() {
             <Text
               style={{
                 color: colors.primary,
-                fontFamily: "Inter_500Medium",
+                fontFamily: "Figtree_500Medium",
                 fontSize: 13,
               }}
             >
@@ -345,13 +357,24 @@ export default function HomeScreen() {
             </Text>
           </TouchableOpacity>
         </View>
+        {devices.length === 0 ? (
+          <Text
+            style={{
+              color: colors.mutedForeground,
+              fontFamily: "Figtree_400Regular",
+              fontSize: 14,
+            }}
+          >
+            No devices yet. Add one from Devices.
+          </Text>
+        ) : null}
         {devices.slice(0, 5).map((device) => (
           <View key={device.id} style={styles.deviceRow}>
             <View style={{ flex: 1 }}>
               <Text
                 style={{
                   color: colors.foreground,
-                  fontFamily: "Inter_500Medium",
+                  fontFamily: "Figtree_500Medium",
                   fontSize: 14,
                 }}
               >
@@ -360,7 +383,7 @@ export default function HomeScreen() {
               <Text
                 style={{
                   color: colors.mutedForeground,
-                  fontFamily: "Inter_400Regular",
+                  fontFamily: "Figtree_400Regular",
                   fontSize: 12,
                   marginTop: 2,
                 }}
@@ -377,7 +400,7 @@ export default function HomeScreen() {
                 <Text
                   style={{
                     color: colors.foreground,
-                    fontFamily: "Inter_500Medium",
+                    fontFamily: "Figtree_500Medium",
                     fontSize: 12,
                   }}
                 >
@@ -406,7 +429,7 @@ export default function HomeScreen() {
           <Text
             style={[
               styles.cardTitle,
-              { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
+              { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
             ]}
           >
             Activity history
@@ -415,7 +438,7 @@ export default function HomeScreen() {
             <Text
               style={{
                 color: colors.primary,
-                fontFamily: "Inter_500Medium",
+                fontFamily: "Figtree_500Medium",
                 fontSize: 13,
               }}
             >
@@ -441,7 +464,7 @@ export default function HomeScreen() {
               style={{
                 flex: 1,
                 color: colors.foreground,
-                fontFamily: "Inter_500Medium",
+                fontFamily: "Figtree_500Medium",
                 fontSize: 13,
               }}
               numberOfLines={2}
@@ -463,7 +486,7 @@ export default function HomeScreen() {
           <Text
             style={[
               styles.cardTitle,
-              { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
+              { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
             ]}
           >
             Import tariff
@@ -472,7 +495,7 @@ export default function HomeScreen() {
             <Text
               style={{
                 color: colors.mutedForeground,
-                fontFamily: "Inter_500Medium",
+                fontFamily: "Figtree_500Medium",
                 fontSize: 12,
               }}
             >
@@ -483,7 +506,7 @@ export default function HomeScreen() {
         <Text
           style={{
             color: colors.foreground,
-            fontFamily: "Inter_600SemiBold",
+            fontFamily: "Figtree_600SemiBold",
             fontSize: 15,
             marginBottom: 8,
           }}
@@ -510,7 +533,7 @@ export default function HomeScreen() {
           <Text
             style={{
               color: colors.primaryForeground,
-              fontFamily: "Inter_600SemiBold",
+              fontFamily: "Figtree_600SemiBold",
               fontSize: 14,
             }}
           >
@@ -539,7 +562,7 @@ export default function HomeScreen() {
           ]}
           onPress={() => router.push("/schedule")}
         >
-          <Ionicons name="calendar-outline" size={22} color="#A78BFA" />
+          <Ionicons name="calendar-outline" size={22} color={category.automation} />
           <Text style={quickLabel(colors)}>Schedule</Text>
           <Text style={quickMuted(colors)}>3 active</Text>
         </TouchableOpacity>
@@ -550,7 +573,7 @@ export default function HomeScreen() {
           ]}
           onPress={() => router.push("/automation")}
         >
-          <Ionicons name="git-merge-outline" size={22} color="#34D399" />
+          <Ionicons name="git-merge-outline" size={22} color={category.climate} />
           <Text style={quickLabel(colors)}>Automation</Text>
           <Text style={quickMuted(colors)}>4 rules on</Text>
         </TouchableOpacity>
@@ -577,7 +600,7 @@ export default function HomeScreen() {
 function calloutText(colors: { foreground: string }) {
   return {
     color: colors.foreground,
-    fontFamily: "Inter_500Medium" as const,
+    fontFamily: "Figtree_500Medium" as const,
     fontSize: 12,
   };
 }
@@ -585,7 +608,7 @@ function calloutText(colors: { foreground: string }) {
 function tariffLine(colors: { mutedForeground: string }) {
   return {
     color: colors.mutedForeground,
-    fontFamily: "Inter_400Regular" as const,
+    fontFamily: "Figtree_400Regular" as const,
     fontSize: 12,
     marginBottom: 4,
     lineHeight: 18,
@@ -595,7 +618,7 @@ function tariffLine(colors: { mutedForeground: string }) {
 function quickLabel(colors: { foreground: string }) {
   return {
     color: colors.foreground,
-    fontFamily: "Inter_500Medium" as const,
+    fontFamily: "Figtree_500Medium" as const,
     fontSize: 13,
   };
 }
@@ -603,7 +626,7 @@ function quickLabel(colors: { foreground: string }) {
 function quickValue(colors: { accent: string }) {
   return {
     color: colors.accent,
-    fontFamily: "Inter_700Bold" as const,
+    fontFamily: "Figtree_700Bold" as const,
     fontSize: 15,
   };
 }
@@ -611,7 +634,7 @@ function quickValue(colors: { accent: string }) {
 function quickMuted(colors: { mutedForeground: string }) {
   return {
     color: colors.mutedForeground,
-    fontFamily: "Inter_400Regular" as const,
+    fontFamily: "Figtree_400Regular" as const,
     fontSize: 13,
   };
 }
@@ -625,17 +648,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 16,
   },
-  logo: {
-    height: 28,
-    width: 64,
+  greeting: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginRight: 12,
   },
-  logoDark: {
-    tintColor: "#F2F2F2",
+  mark: {
+    width: 28,
+    height: 28,
+  },
+  greetingText: {
+    flex: 1,
+    fontFamily: "Figtree_600SemiBold",
+    fontSize: 17,
   },
   headerBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: StyleSheet.hairlineWidth,
@@ -704,9 +736,9 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginBottom: 14,
-    borderRadius: 14,
+    borderRadius: radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
-    padding: 16,
+    padding: 18,
   },
   cardHeader: {
     flexDirection: "row",
@@ -715,20 +747,20 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     gap: 10,
   },
-  cardTitle: { fontSize: 16 },
+  cardTitle: { fontSize: 17 },
   segment: {
     flexDirection: "row",
-    borderRadius: 8,
-    padding: 3,
+    borderRadius: 9,
+    padding: 2,
     gap: 2,
   },
   segmentBtn: {
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 6,
+    borderRadius: 7,
   },
   liveBody: {
     alignItems: "center",
@@ -783,7 +815,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 2,
     minHeight: 4,
   },
-  barLabel: { fontSize: 9, marginTop: 5 },
+  barLabel: { fontSize: 11, marginTop: 5 },
   deviceRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -812,14 +844,14 @@ const styles = StyleSheet.create({
   },
   quickTile: {
     width: "47%",
-    borderRadius: 12,
+    borderRadius: radius.lg,
     padding: 14,
     gap: 6,
     borderWidth: StyleSheet.hairlineWidth,
   },
   compareCta: {
     marginTop: 14,
-    borderRadius: 10,
+    borderRadius: radius.md,
     paddingVertical: 13,
     paddingHorizontal: 14,
     flexDirection: "row",

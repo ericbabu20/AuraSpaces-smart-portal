@@ -1,4 +1,5 @@
 import EnergyHouseHero from "@/components/EnergyHouseHero";
+import { useAuth } from "@/context/AuthContext";
 import { useEnergy } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
 import { semantic } from "@/theme/tokens";
@@ -74,7 +75,7 @@ function MiniBars({
                   styles.barLabel,
                   {
                     color: colors.mutedForeground,
-                    fontFamily: "Inter_400Regular",
+                    fontFamily: "Figtree_400Regular",
                   },
                 ]}
                 numberOfLines={1}
@@ -91,6 +92,13 @@ function MiniBars({
 
 export default function HomeWideDashboard() {
   const colors = useColors();
+  const { user } = useAuth();
+  const rawName =
+    (user?.user_metadata?.full_name as string | undefined)?.trim() ||
+    (user?.user_metadata?.name as string | undefined)?.trim() ||
+    user?.email?.split("@")[0]?.trim() ||
+    "there";
+  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const {
     currentUsage,
     moneySaved,
@@ -137,7 +145,7 @@ export default function HomeWideDashboard() {
           <Text
             style={[
               styles.title,
-              { color: colors.foreground, fontFamily: "Inter_700Bold" },
+              { color: colors.foreground, fontFamily: "Figtree_700Bold" },
             ]}
           >
             Home
@@ -146,12 +154,12 @@ export default function HomeWideDashboard() {
             style={[
               styles.subtitle,
               {
-                color: colors.mutedForeground,
-                fontFamily: "Inter_400Regular",
+                color: colors.foreground,
+                fontFamily: "Figtree_600SemiBold",
               },
             ]}
           >
-            Live energy, devices, and savings for your home
+            Welcome, {displayName}
           </Text>
         </View>
         <View style={styles.headerRight}>
@@ -164,7 +172,7 @@ export default function HomeWideDashboard() {
             <Text
               style={{
                 color: colors.primaryForeground,
-                fontFamily: "Inter_700Bold",
+                fontFamily: "Figtree_700Bold",
                 fontSize: 13,
               }}
             >
@@ -189,7 +197,7 @@ export default function HomeWideDashboard() {
               placeholderTextColor={colors.mutedForeground}
               style={[
                 styles.searchInput,
-                { color: colors.foreground, fontFamily: "Inter_400Regular" },
+                { color: colors.foreground, fontFamily: "Figtree_400Regular" },
               ]}
             />
           </View>
@@ -212,7 +220,7 @@ export default function HomeWideDashboard() {
                   styles.cardTitle,
                   {
                     color: colors.foreground,
-                    fontFamily: "Inter_600SemiBold",
+                    fontFamily: "Figtree_600SemiBold",
                   },
                 ]}
               >
@@ -222,7 +230,7 @@ export default function HomeWideDashboard() {
                 <Text
                   style={{
                     color: colors.primary,
-                    fontFamily: "Inter_500Medium",
+                    fontFamily: "Figtree_500Medium",
                     fontSize: 13,
                   }}
                 >
@@ -248,7 +256,7 @@ export default function HomeWideDashboard() {
                   <Text
                     style={{
                       color: colors.foreground,
-                      fontFamily: "Inter_500Medium",
+                      fontFamily: "Figtree_500Medium",
                       fontSize: 13,
                     }}
                     numberOfLines={2}
@@ -274,7 +282,7 @@ export default function HomeWideDashboard() {
                   styles.cardTitle,
                   {
                     color: colors.foreground,
-                    fontFamily: "Inter_600SemiBold",
+                    fontFamily: "Figtree_600SemiBold",
                   },
                 ]}
               >
@@ -299,7 +307,7 @@ export default function HomeWideDashboard() {
                           range === tab
                             ? colors.foreground
                             : colors.mutedForeground,
-                        fontFamily: "Inter_500Medium",
+                        fontFamily: "Figtree_500Medium",
                       }}
                     >
                       {tab}
@@ -312,7 +320,7 @@ export default function HomeWideDashboard() {
             <Text
               style={{
                 color: colors.foreground,
-                fontFamily: "Inter_600SemiBold",
+                fontFamily: "Figtree_600SemiBold",
                 fontSize: 14,
                 marginBottom: 4,
               }}
@@ -331,7 +339,7 @@ export default function HomeWideDashboard() {
                   style={{
                     color: colors.mutedForeground,
                     fontSize: 11,
-                    fontFamily: "Inter_400Regular",
+                    fontFamily: "Figtree_400Regular",
                   }}
                 >
                   Electricity
@@ -345,7 +353,7 @@ export default function HomeWideDashboard() {
                   style={{
                     color: colors.mutedForeground,
                     fontSize: 11,
-                    fontFamily: "Inter_400Regular",
+                    fontFamily: "Figtree_400Regular",
                   }}
                 >
                   Gas
@@ -364,7 +372,7 @@ export default function HomeWideDashboard() {
               <Text
                 style={{
                   color: colors.primary,
-                  fontFamily: "Inter_500Medium",
+                  fontFamily: "Figtree_500Medium",
                   fontSize: 13,
                 }}
               >
@@ -377,7 +385,7 @@ export default function HomeWideDashboard() {
             <Text
               style={{
                 color: colors.foreground,
-                fontFamily: "Inter_600SemiBold",
+                fontFamily: "Figtree_600SemiBold",
                 fontSize: 14,
                 marginBottom: 4,
               }}
@@ -406,7 +414,7 @@ export default function HomeWideDashboard() {
                   styles.cardTitle,
                   {
                     color: colors.foreground,
-                    fontFamily: "Inter_600SemiBold",
+                    fontFamily: "Figtree_600SemiBold",
                   },
                 ]}
               >
@@ -431,7 +439,7 @@ export default function HomeWideDashboard() {
                           evUnit === unit
                             ? colors.foreground
                             : colors.mutedForeground,
-                        fontFamily: "Inter_500Medium",
+                        fontFamily: "Figtree_500Medium",
                       }}
                     >
                       {unit}
@@ -443,7 +451,7 @@ export default function HomeWideDashboard() {
             <Text
               style={{
                 color: colors.foreground,
-                fontFamily: "Inter_700Bold",
+                fontFamily: "Figtree_700Bold",
                 fontSize: 22,
                 marginBottom: 8,
               }}
@@ -455,7 +463,7 @@ export default function HomeWideDashboard() {
             <Text
               style={{
                 color: colors.mutedForeground,
-                fontFamily: "Inter_400Regular",
+                fontFamily: "Figtree_400Regular",
                 fontSize: 13,
                 marginBottom: 12,
               }}
@@ -477,7 +485,7 @@ export default function HomeWideDashboard() {
                 <Text
                   style={{
                     color: colors.primaryForeground,
-                    fontFamily: "Inter_600SemiBold",
+                    fontFamily: "Figtree_600SemiBold",
                     fontSize: 13,
                   }}
                 >
@@ -494,7 +502,7 @@ export default function HomeWideDashboard() {
                 <Text
                   style={{
                     color: colors.foreground,
-                    fontFamily: "Inter_500Medium",
+                    fontFamily: "Figtree_500Medium",
                     fontSize: 13,
                   }}
                 >
@@ -515,7 +523,7 @@ export default function HomeWideDashboard() {
             <Text
               style={[
                 styles.cardTitle,
-                { color: colors.foreground, fontFamily: "Inter_700Bold" },
+                { color: colors.foreground, fontFamily: "Figtree_700Bold" },
               ]}
             >
               Alex
@@ -523,7 +531,7 @@ export default function HomeWideDashboard() {
             <Text
               style={{
                 color: colors.mutedForeground,
-                fontFamily: "Inter_400Regular",
+                fontFamily: "Figtree_400Regular",
                 fontSize: 13,
                 marginTop: 4,
                 lineHeight: 20,
@@ -538,7 +546,7 @@ export default function HomeWideDashboard() {
               <Text
                 style={{
                   color: colors.primary,
-                  fontFamily: "Inter_500Medium",
+                  fontFamily: "Figtree_500Medium",
                   fontSize: 13,
                 }}
               >
@@ -553,13 +561,25 @@ export default function HomeWideDashboard() {
                 styles.cardTitle,
                 {
                   color: colors.foreground,
-                  fontFamily: "Inter_600SemiBold",
+                  fontFamily: "Figtree_600SemiBold",
                   marginBottom: 12,
                 },
               ]}
             >
               Devices
             </Text>
+            {devices.length === 0 ? (
+              <Text
+                style={{
+                  color: colors.mutedForeground,
+                  fontFamily: "Figtree_400Regular",
+                  fontSize: 13,
+                  marginBottom: 8,
+                }}
+              >
+                No devices yet.
+              </Text>
+            ) : null}
             {devices
               .filter((d) =>
                 query
@@ -573,7 +593,7 @@ export default function HomeWideDashboard() {
                     <Text
                       style={{
                         color: colors.foreground,
-                        fontFamily: "Inter_500Medium",
+                        fontFamily: "Figtree_500Medium",
                         fontSize: 13,
                       }}
                     >
@@ -582,7 +602,7 @@ export default function HomeWideDashboard() {
                     <Text
                       style={{
                         color: colors.mutedForeground,
-                        fontFamily: "Inter_400Regular",
+                        fontFamily: "Figtree_400Regular",
                         fontSize: 11,
                         marginTop: 2,
                       }}
@@ -601,7 +621,7 @@ export default function HomeWideDashboard() {
                       <Text
                         style={{
                           color: colors.foreground,
-                          fontFamily: "Inter_500Medium",
+                          fontFamily: "Figtree_500Medium",
                           fontSize: 12,
                         }}
                       >
@@ -627,7 +647,7 @@ export default function HomeWideDashboard() {
               <Text
                 style={{
                   color: colors.primary,
-                  fontFamily: "Inter_500Medium",
+                  fontFamily: "Figtree_500Medium",
                   fontSize: 13,
                 }}
               >
@@ -641,7 +661,7 @@ export default function HomeWideDashboard() {
               <Text
                 style={{
                   color: colors.mutedForeground,
-                  fontFamily: "Inter_500Medium",
+                  fontFamily: "Figtree_500Medium",
                   fontSize: 13,
                 }}
               >
@@ -657,7 +677,7 @@ export default function HomeWideDashboard() {
                   styles.cardTitle,
                   {
                     color: colors.foreground,
-                    fontFamily: "Inter_600SemiBold",
+                    fontFamily: "Figtree_600SemiBold",
                   },
                 ]}
               >
@@ -667,7 +687,7 @@ export default function HomeWideDashboard() {
                 <Text
                   style={{
                     color: colors.mutedForeground,
-                    fontFamily: "Inter_500Medium",
+                    fontFamily: "Figtree_500Medium",
                     fontSize: 12,
                   }}
                 >
@@ -678,7 +698,7 @@ export default function HomeWideDashboard() {
             <Text
               style={{
                 color: colors.foreground,
-                fontFamily: "Inter_600SemiBold",
+                fontFamily: "Figtree_600SemiBold",
                 fontSize: 15,
                 marginBottom: 10,
               }}
@@ -705,7 +725,7 @@ export default function HomeWideDashboard() {
               <Text
                 style={{
                   color: colors.primaryForeground,
-                  fontFamily: "Inter_600SemiBold",
+                  fontFamily: "Figtree_600SemiBold",
                   fontSize: 13,
                 }}
               >
@@ -728,7 +748,7 @@ export default function HomeWideDashboard() {
                 <Text
                   style={{
                     color: colors.foreground,
-                    fontFamily: "Inter_500Medium",
+                    fontFamily: "Figtree_500Medium",
                     fontSize: 12,
                   }}
                 >
@@ -747,7 +767,7 @@ export default function HomeWideDashboard() {
                 <Text
                   style={{
                     color: colors.foreground,
-                    fontFamily: "Inter_500Medium",
+                    fontFamily: "Figtree_500Medium",
                     fontSize: 12,
                   }}
                 >
@@ -761,7 +781,7 @@ export default function HomeWideDashboard() {
                   marginTop: 10,
                   color: colors.mutedForeground,
                   fontSize: 12,
-                  fontFamily: "Inter_400Regular",
+                  fontFamily: "Figtree_400Regular",
                 }}
               >
                 Thermostat {thermostat.isOn ? "on" : "off"} · {thermostatTemp}
@@ -778,7 +798,7 @@ export default function HomeWideDashboard() {
 function tariffLine(colors: { mutedForeground: string }) {
   return {
     color: colors.mutedForeground,
-    fontFamily: "Inter_400Regular" as const,
+    fontFamily: "Figtree_400Regular" as const,
     fontSize: 12,
     marginBottom: 4,
     lineHeight: 18,

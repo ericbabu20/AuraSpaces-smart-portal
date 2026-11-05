@@ -1,5 +1,6 @@
 import { Recommendation, useEnergy } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
+import { brand, semantic } from "@/theme/tokens";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
@@ -14,9 +15,9 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const DIFFICULTY_COLORS = {
-  easy: "#34D399",
-  medium: "#F59E0B",
-  hard: "#EF4444",
+  easy: semantic.positive,
+  medium: brand.coffee,
+  hard: brand.koi,
 };
 
 function RecommendationCard({ rec }: { rec: Recommendation }) {
@@ -55,7 +56,7 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
             <Text
               style={[
                 styles.diffText,
-                { color: difficultyColor, fontFamily: "Inter_500Medium" },
+                { color: difficultyColor, fontFamily: "Figtree_500Medium" },
               ]}
             >
               {rec.difficulty}
@@ -64,7 +65,7 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
           <Text
             style={[
               styles.savings,
-              { color: colors.primary, fontFamily: "Inter_700Bold" },
+              { color: colors.primary, fontFamily: "Figtree_700Bold" },
             ]}
           >
             +£{rec.savingsPerMonth}/mo
@@ -74,7 +75,7 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
       <Text
         style={[
           styles.cardTitle,
-          { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
+          { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
         ]}
       >
         {rec.title}
@@ -82,7 +83,7 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
       <Text
         style={[
           styles.cardDesc,
-          { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+          { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
         ]}
       >
         {rec.description}
@@ -109,7 +110,7 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
             styles.applyText,
             {
               color: applied ? colors.primary : colors.primaryForeground,
-              fontFamily: "Inter_600SemiBold",
+              fontFamily: "Figtree_600SemiBold",
             },
           ]}
         >
@@ -143,7 +144,7 @@ export default function RecommendationsScreen() {
       <Text
         style={[
           styles.title,
-          { color: colors.foreground, fontFamily: "Inter_700Bold" },
+          { color: colors.foreground, fontFamily: "Figtree_700Bold" },
         ]}
       >
         Recommendations
@@ -163,7 +164,7 @@ export default function RecommendationsScreen() {
           <Text
             style={[
               styles.totalValue,
-              { color: colors.primary, fontFamily: "Inter_700Bold" },
+              { color: colors.primary, fontFamily: "Figtree_700Bold" },
             ]}
           >
             £{totalSavings}/month
@@ -171,7 +172,7 @@ export default function RecommendationsScreen() {
           <Text
             style={[
               styles.totalLabel,
-              { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+              { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
             ]}
           >
             potential savings from {recommendations.length} tips

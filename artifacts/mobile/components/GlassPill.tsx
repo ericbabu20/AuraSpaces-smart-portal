@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } fro
 
 import { Glass } from "@/components/Glass";
 import { useColors } from "@/hooks/useColors";
-import { brand, fonts, radius, space } from "@/theme/tokens";
+import { fonts, radius, shade, space } from "@/theme/tokens";
 
 export type GlassPillProps = {
   icon?: React.ComponentProps<typeof Feather>["name"];
@@ -35,7 +35,7 @@ export function GlassPill({
 }: GlassPillProps) {
   const colors = useColors();
   const tone = accent ?? colors.primary;
-  const textColor = onDark ? brand.paper : colors.foreground;
+  const textColor = onDark ? shade.nightInk : colors.foreground;
 
   const content = (
     <View style={styles.row}>

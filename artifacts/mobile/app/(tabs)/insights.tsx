@@ -1,6 +1,7 @@
 import { useEnergy } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
 import { useTabContentInsets } from "@/hooks/useTabContentInsets";
+import { brand, category } from "@/theme/tokens";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -51,7 +52,7 @@ function BarChart({
           <Text
             style={[
               styles.barLabel,
-              { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+              { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
             ]}
           >
             {labels[i]}
@@ -65,10 +66,10 @@ function BarChart({
 function UsageByTime() {
   const colors = useColors();
   const segments = [
-    { label: "12–6 AM", value: 8, color: "#60A5FA" },
-    { label: "6–12 PM", value: 25, color: colors.primary },
+    { label: "12–6 AM", value: 8, color: category.climate },
+    { label: "6–12 PM", value: 25, color: brand.coffee },
     { label: "12–6 PM", value: 38, color: colors.accent },
-    { label: "6–12 AM", value: 29, color: "#A78BFA" },
+    { label: "6–12 AM", value: 29, color: brand.duckWillow },
   ];
 
   return (
@@ -78,7 +79,7 @@ function UsageByTime() {
           <Text
             style={[
               styles.timeLabel,
-              { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+              { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
             ]}
           >
             {seg.label}
@@ -94,7 +95,7 @@ function UsageByTime() {
           <Text
             style={[
               styles.timePercent,
-              { color: colors.foreground, fontFamily: "Inter_500Medium" },
+              { color: colors.foreground, fontFamily: "Figtree_500Medium" },
             ]}
           >
             {seg.value}%
@@ -124,7 +125,7 @@ export default function InsightsScreen() {
       <Text
         style={[
           styles.title,
-          { color: colors.foreground, fontFamily: "Inter_700Bold" },
+          { color: colors.foreground, fontFamily: "Figtree_700Bold" },
         ]}
       >
         Energy Insights
@@ -134,7 +135,7 @@ export default function InsightsScreen() {
         <Text
           style={[
             styles.sampleNote,
-            { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+            { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
           ]}
         >
           Showing sample data — live meter data unavailable
@@ -151,7 +152,7 @@ export default function InsightsScreen() {
           <Text
             style={[
               styles.summaryCardLabel,
-              { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+              { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
             ]}
           >
             Electricity
@@ -159,7 +160,7 @@ export default function InsightsScreen() {
           <Text
             style={[
               styles.summaryCardValue,
-              { color: colors.foreground, fontFamily: "Inter_700Bold" },
+              { color: colors.foreground, fontFamily: "Figtree_700Bold" },
             ]}
           >
             {elecTotal.toFixed(1)} kWh
@@ -174,7 +175,7 @@ export default function InsightsScreen() {
           <Text
             style={[
               styles.summaryCardLabel,
-              { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+              { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
             ]}
           >
             Gas
@@ -182,7 +183,7 @@ export default function InsightsScreen() {
           <Text
             style={[
               styles.summaryCardValue,
-              { color: colors.foreground, fontFamily: "Inter_700Bold" },
+              { color: colors.foreground, fontFamily: "Figtree_700Bold" },
             ]}
           >
             {gasTotal.toFixed(1)} kWh
@@ -197,7 +198,7 @@ export default function InsightsScreen() {
           <Text
             style={[
               styles.summaryCardLabel,
-              { color: colors.primary, fontFamily: "Inter_400Regular" },
+              { color: colors.primary, fontFamily: "Figtree_400Regular" },
             ]}
           >
             Total
@@ -205,7 +206,7 @@ export default function InsightsScreen() {
           <Text
             style={[
               styles.summaryCardValue,
-              { color: colors.primary, fontFamily: "Inter_700Bold" },
+              { color: colors.primary, fontFamily: "Figtree_700Bold" },
             ]}
           >
             {combinedTotal.toFixed(0)} kWh
@@ -223,16 +224,16 @@ export default function InsightsScreen() {
           <Text
             style={[
               styles.chartTitle,
-              { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
+              { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
             ]}
           >
             Daily Usage
           </Text>
           <View style={styles.legend}>
             <View style={[styles.legendDot, { backgroundColor: colors.accent }]} />
-            <Text style={[styles.legendText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>Gas</Text>
+            <Text style={[styles.legendText, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}>Gas</Text>
             <View style={[styles.legendDot, { backgroundColor: colors.primary }]} />
-            <Text style={[styles.legendText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>Electricity</Text>
+            <Text style={[styles.legendText, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}>Electricity</Text>
           </View>
         </View>
         <BarChart data={electricityWeekly} compareData={gasWeekly} labels={weekLabels} />
@@ -247,7 +248,7 @@ export default function InsightsScreen() {
         <Text
           style={[
             styles.chartTitle,
-            { color: colors.foreground, fontFamily: "Inter_600SemiBold", marginBottom: 16 },
+            { color: colors.foreground, fontFamily: "Figtree_600SemiBold", marginBottom: 16 },
           ]}
         >
           Usage by Time of Day
@@ -266,7 +267,7 @@ export default function InsightsScreen() {
           <Text
             style={[
               styles.tipTitle,
-              { color: colors.foreground, fontFamily: "Inter_600SemiBold" },
+              { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
             ]}
           >
             Aura Tip
@@ -274,7 +275,7 @@ export default function InsightsScreen() {
           <Text
             style={[
               styles.tipText,
-              { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+              { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
             ]}
           >
             Your peak usage is between 12–6 PM. Try shifting heavy appliances
@@ -292,23 +293,23 @@ export default function InsightsScreen() {
         <Text
           style={[
             styles.chartTitle,
-            { color: colors.foreground, fontFamily: "Inter_600SemiBold", marginBottom: 12 },
+            { color: colors.foreground, fontFamily: "Figtree_600SemiBold", marginBottom: 12 },
           ]}
         >
           Top Consumers
         </Text>
         {[
-          { name: "AC Unit", value: 1.5, color: "#60A5FA" },
-          { name: "Thermostat", value: 1.2, color: "#34D399" },
-          { name: "Refrigerator", value: 0.15, color: "#A78BFA" },
-          { name: "Lighting", value: 0.1, color: "#FBBF24" },
+          { name: "AC Unit", value: 1.5, color: category.climate },
+          { name: "Thermostat", value: 1.2, color: brand.koi },
+          { name: "Refrigerator", value: 0.15, color: category.appliance },
+          { name: "Lighting", value: 0.1, color: category.lighting },
         ].map((item) => (
           <View key={item.name} style={styles.consumerRow}>
             <View style={[styles.consumerDot, { backgroundColor: item.color }]} />
-            <Text style={[styles.consumerName, { color: colors.foreground, fontFamily: "Inter_500Medium" }]}>
+            <Text style={[styles.consumerName, { color: colors.foreground, fontFamily: "Figtree_500Medium" }]}>
               {item.name}
             </Text>
-            <Text style={[styles.consumerValue, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+            <Text style={[styles.consumerValue, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}>
               {item.value} kW
             </Text>
           </View>

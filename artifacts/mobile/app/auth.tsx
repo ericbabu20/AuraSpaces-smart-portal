@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -15,15 +16,19 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { useColors } from "@/hooks/useColors";
+import { fonts, radius } from "@/theme/tokens";
 
 type Mode = "signin" | "signup";
 
 export default function AuthScreen() {
   const colors = useColors();
+  const { isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const {
     signIn,
+    signInWithGoogle,
     signUp,
     sendPasswordReset,
     updatePassword,
@@ -62,6 +67,14 @@ export default function AuthScreen() {
     if (message) setError(message);
   };
 
+  const continueWithGoogle = async () => {
+    setError(null);
+    setBusy(true);
+    const message = await signInWithGoogle();
+    setBusy(false);
+    if (message) setError(message);
+  };
+
   const resetPassword = async () => {
     if (!email.trim()) {
       setError("Enter your email first.");
@@ -86,10 +99,23 @@ export default function AuthScreen() {
         ]}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={[styles.mark, { backgroundColor: colors.primary }]}>
-          <Ionicons name="flash" size={26} color={colors.primaryForeground} />
-        </View>
-        <Text style={[styles.title, { color: colors.foreground }]}>Aura Spaces</Text>
+        <Image
+          source={
+            isDark
+              ? require("../assets/images/logo-dark.png")
+              : require("../assets/images/logo.png")
+          }
+          style={styles.logo}
+          resizeMode="contain"
+          accessibilityLabel="Aura Spaces"
+        />
+        <Text style={[styles.title, { color: colors.foreground }]}>
+          {passwordRecovery
+            ? "Reset password"
+            : mode === "signin"
+              ? "Welcome back"
+              : "Create account"}
+        </Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
           {passwordRecovery
             ? "Choose a new password"
@@ -97,6 +123,32 @@ export default function AuthScreen() {
             ? "Sign in to your energy assistant"
             : "Create your secure Aura account"}
         </Text>
+
+        {!passwordRecovery ? (
+          <>
+            <Pressable
+              onPress={continueWithGoogle}
+              disabled={busy}
+              accessibilityRole="button"
+              accessibilityLabel="Continue with Google"
+              style={({ pressed }) => [
+                styles.google,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.border,
+                },
+                pressed && styles.pressed,
+                busy && styles.disabled,
+              ]}
+            >
+              <Ionicons name="logo-google" size={18} color={colors.foreground} />
+              <Text style={[styles.googleText, { color: colors.foreground }]}>
+                Continue with Google
+              </Text>
+            </Pressable>
+            <Text style={[styles.or, { color: colors.mutedForeground }]}>or</Text>
+          </>
+        ) : null}
 
         <View
           style={[
@@ -142,7 +194,7 @@ export default function AuthScreen() {
           <TextInput
             value={password}
             onChangeText={setPassword}
-            placeholder="Password (8+ characters)"
+            placeholder={mode === "signup" ? "Password (8+ characters)" : "Password"}
             placeholderTextColor={colors.mutedForeground}
             secureTextEntry
             autoComplete={mode === "signin" ? "current-password" : "new-password"}
@@ -225,50 +277,78 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     justifyContent: "center",
   },
-  mark: {
-    width: 52,
-    height: 52,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 20,
-  },
-  title: { fontFamily: "Inter_700Bold", fontSize: 32, letterSpacing: -0.8 },
-  subtitle: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 16,
-    marginTop: 8,
+  logo: {
+    width: 150,
+    height: 66,
+    alignSelf: "center",
     marginBottom: 28,
   },
-  card: { borderWidth: 1, borderRadius: 14, padding: 20, gap: 12 },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    fontFamily: "Inter_400Regular",
-    fontSize: 15,
+  title: {
+    fontFamily: fonts.headingBold,
+    fontSize: 34,
+    lineHeight: 41,
+    letterSpacing: -0.4,
+    textAlign: "center",
   },
-  error: { fontFamily: "Inter_400Regular", fontSize: 13, lineHeight: 18 },
+  subtitle: {
+    fontFamily: fonts.body,
+    fontSize: 17,
+    lineHeight: 22,
+    textAlign: "center",
+    marginTop: 6,
+    marginBottom: 28,
+  },
+  card: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.lg,
+    padding: 20,
+    gap: 12,
+  },
+  input: {
+    minHeight: 50,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.md,
+    paddingHorizontal: 16,
+    fontFamily: fonts.body,
+    fontSize: 17,
+  },
+  error: { fontFamily: fonts.body, fontSize: 15, lineHeight: 20 },
   primary: {
-    height: 50,
-    borderRadius: 8,
+    minHeight: 50,
+    borderRadius: radius.md,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 4,
   },
-  primaryText: { fontFamily: "Inter_600SemiBold", fontSize: 15 },
+  primaryText: { fontFamily: fonts.bodySemiBold, fontSize: 17 },
+  google: {
+    minHeight: 50,
+    borderRadius: radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+  },
+  googleText: { fontFamily: fonts.bodySemiBold, fontSize: 17 },
+  or: {
+    textAlign: "center",
+    fontFamily: fonts.body,
+    fontSize: 13,
+    marginVertical: 4,
+  },
   link: {
     textAlign: "center",
-    fontFamily: "Inter_500Medium",
-    fontSize: 13,
-    paddingTop: 4,
+    fontFamily: fonts.bodyMedium,
+    fontSize: 15,
+    paddingVertical: 8,
   },
   switchText: {
     textAlign: "center",
-    fontFamily: "Inter_400Regular",
-    fontSize: 14,
+    fontFamily: fonts.body,
+    fontSize: 15,
     marginTop: 20,
+    paddingVertical: 8,
   },
   pressed: { transform: [{ scale: 0.99 }] },
   disabled: { opacity: 0.65 },

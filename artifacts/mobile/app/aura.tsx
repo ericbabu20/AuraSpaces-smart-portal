@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   FlatList,
+  Image,
   Platform,
   StyleSheet,
   Text,
@@ -26,10 +27,10 @@ interface Message {
 }
 
 const SAMPLE_PROMPTS = [
+  "How much electricity did I use this week?",
+  "How does my gas compare?",
+  "What devices do I have?",
   "How can I reduce my energy bill?",
-  "Turn off bedroom lights",
-  "What's using the most power?",
-  "Set thermostat to 21°C",
 ];
 
 const INITIAL_MESSAGES: Message[] = [
@@ -37,14 +38,43 @@ const INITIAL_MESSAGES: Message[] = [
     id: "0",
     role: "assistant",
     content:
-      "Hi! I'm Aura, your energy assistant. I can help you control devices, understand your usage, and find ways to save. What would you like to do?",
+      "Hi, I'm Aura. I read your saved devices and the last month of energy use before I answer. What would you like to know?",
     timestamp: new Date(Date.now() - 60000),
   },
 ];
 
+/** Turn Gemini markdown into text. `**Heating:**` becomes bold; `* ` becomes a bullet. */
+function formatChat(content: string, color: string): React.ReactNode[] {
+  const lines = content.replace(/\r\n/g, "\n").split("\n");
+  return lines.map((line, lineIndex) => {
+    const bullet = line.match(/^\s*[-*]\s+(.*)$/);
+    const body = (bullet ? bullet[1] : line).replace(/(^|\s)\*\s+/g, "$1• ");
+    const pieces = body.split(/(\*\*[^*]+\*\*)/g).filter((piece) => piece.length > 0);
+    return (
+      <Text key={lineIndex}>
+        {lineIndex > 0 ? "\n" : ""}
+        {bullet ? "• " : ""}
+        {pieces.map((piece, pieceIndex) => {
+          const bold = piece.match(/^\*\*([^*]+)\*\*$/);
+          const shown = bold ? bold[1] : piece.replace(/\*+/g, "");
+          return (
+            <Text
+              key={pieceIndex}
+              style={bold ? { fontFamily: "Figtree_700Bold" } : undefined}
+            >
+              {shown}
+            </Text>
+          );
+        })}
+      </Text>
+    );
+  });
+}
+
 function MessageBubble({ message }: { message: Message }) {
   const colors = useColors();
   const isUser = message.role === "user";
+  const textColor = isUser ? colors.primaryForeground : colors.foreground;
 
   return (
     <View
@@ -54,7 +84,12 @@ function MessageBubble({ message }: { message: Message }) {
         <View
           style={[styles.botAvatar, { backgroundColor: colors.primary + "25" }]}
         >
-          <Ionicons name="flash" size={14} color={colors.primary} />
+          <Image
+            source={require("../assets/images/logomark.png")}
+            style={styles.botMark}
+            resizeMode="contain"
+            accessibilityLabel="Aura"
+          />
         </View>
       )}
       <View
@@ -70,12 +105,12 @@ function MessageBubble({ message }: { message: Message }) {
           style={[
             styles.bubbleText,
             {
-              color: isUser ? colors.primaryForeground : colors.foreground,
-              fontFamily: "Inter_400Regular",
+              color: textColor,
+              fontFamily: "Figtree_400Regular",
             },
           ]}
         >
-          {message.content}
+          {isUser ? message.content : formatChat(message.content, textColor)}
         </Text>
       </View>
     </View>
@@ -244,13 +279,18 @@ export default function AuraScreen() {
           <View
             style={[styles.auraIcon, { backgroundColor: colors.primary + "20" }]}
           >
-            <Ionicons name="flash" size={16} color={colors.primary} />
+            <Image
+              source={require("../assets/images/logomark.png")}
+              style={styles.auraMark}
+              resizeMode="contain"
+              accessibilityLabel="Aura"
+            />
           </View>
           <View>
             <Text
               style={[
                 styles.headerTitle,
-                { color: colors.foreground, fontFamily: "Inter_700Bold" },
+                { color: colors.foreground, fontFamily: "Figtree_700Bold" },
               ]}
             >
               Aura AI
@@ -260,7 +300,7 @@ export default function AuraScreen() {
                 styles.headerSub,
                 {
                   color: colors.primary,
-                  fontFamily: "Inter_400Regular",
+                  fontFamily: "Figtree_400Regular",
                 },
               ]}
             >
@@ -308,7 +348,12 @@ export default function AuraScreen() {
                   { backgroundColor: colors.primary + "25" },
                 ]}
               >
-                <Ionicons name="flash" size={14} color={colors.primary} />
+                <Image
+                  source={require("../assets/images/logomark.png")}
+                  style={styles.botMark}
+                  resizeMode="contain"
+                  accessibilityLabel="Aura"
+                />
               </View>
               <View
                 style={[
@@ -324,7 +369,7 @@ export default function AuraScreen() {
                     styles.bubbleText,
                     {
                       color: colors.mutedForeground,
-                      fontFamily: "Inter_400Regular",
+                      fontFamily: "Figtree_400Regular",
                     },
                   ]}
                 >
@@ -352,7 +397,7 @@ export default function AuraScreen() {
                   styles.promptText,
                   {
                     color: colors.foreground,
-                    fontFamily: "Inter_400Regular",
+                    fontFamily: "Figtree_400Regular",
                   },
                 ]}
               >
@@ -408,7 +453,7 @@ export default function AuraScreen() {
               backgroundColor: colors.background,
               color: colors.foreground,
               borderColor: colors.border,
-              fontFamily: "Inter_400Regular",
+              fontFamily: "Figtree_400Regular",
             },
           ]}
           value={input}
@@ -464,6 +509,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
+  },
+  auraMark: {
+    width: 22,
+    height: 22,
+  },
+  botMark: {
+    width: 16,
+    height: 16,
   },
   headerTitle: { fontSize: 16 },
   headerSub: { fontSize: 12 },

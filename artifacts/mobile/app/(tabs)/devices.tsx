@@ -42,7 +42,7 @@ export default function DevicesScreen() {
             <Text
               style={[
                 styles.title,
-                { color: colors.foreground, fontFamily: "Inter_700Bold" },
+                { color: colors.foreground, fontFamily: "Figtree_700Bold" },
               ]}
             >
               Devices
@@ -52,7 +52,7 @@ export default function DevicesScreen() {
                 styles.subtitle,
                 {
                   color: colors.mutedForeground,
-                  fontFamily: "Inter_400Regular",
+                  fontFamily: "Figtree_400Regular",
                 },
               ]}
             >
@@ -101,7 +101,7 @@ export default function DevicesScreen() {
                       selectedCategory === cat
                         ? colors.primaryForeground
                         : colors.mutedForeground,
-                    fontFamily: "Inter_500Medium",
+                    fontFamily: "Figtree_500Medium",
                   },
                 ]}
               >
@@ -138,11 +138,13 @@ export default function DevicesScreen() {
                 styles.emptyText,
                 {
                   color: colors.mutedForeground,
-                  fontFamily: "Inter_400Regular",
+                  fontFamily: "Figtree_400Regular",
                 },
               ]}
             >
-              No devices in this category
+              {devices.length === 0
+                ? "No devices yet. Tap + to add one."
+                : "No devices in this category"}
             </Text>
           </View>
         )}

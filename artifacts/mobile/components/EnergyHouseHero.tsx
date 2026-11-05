@@ -55,7 +55,7 @@ function getRateStatus(now: Date) {
     : {
         offPeak: false,
         text: "Peak rate · 31.5p/kWh · off-peak from 00:30",
-        dot: brand.gasTone,
+        dot: brand.koi,
       };
 }
 
@@ -220,7 +220,7 @@ export function EnergyHouseHero({ wide = false }: Props) {
         ? `Charging at ${evKw.toFixed(1)} kW · ${rate.offPeak ? "off-peak rate" : "peak rate"}`
         : "Not charging · tap Schedule to plan a cheap charge";
 
-  const gridColor = isDark ? brand.paper : brand.carbon;
+  const gridColor = isDark ? shade.nightInk : shade.ink;
   const stageWpx = stageStyle.width;
   const stageHpx = stageStyle.height;
 
@@ -266,10 +266,12 @@ export function EnergyHouseHero({ wide = false }: Props) {
     });
 
   const gradient: [string, string] = isDark
-    ? [shade.nightBg, "#0E0F11"]
-    : [shade.dayRaised, shade.dayBg];
-  // soft studio-light glow behind the house (neutral, not coloured)
-  const glowColor = isDark ? "rgba(255,255,255,0.10)" : "rgba(23,26,32,0.07)";
+    ? [shade.nightRaised, shade.nightBg]
+    : [shade.raised, shade.canvas];
+  // warm sunburst glow behind the house, echoing the Aura mark
+  const glowColor = isDark
+    ? "rgba(217,122,67,0.16)"
+    : "rgba(217,122,67,0.12)";
 
   const webGlow =
     Platform.OS === "web"
@@ -456,7 +458,7 @@ export function EnergyHouseHero({ wide = false }: Props) {
             <View
               style={[
                 styles.dot,
-                { backgroundColor: mode === "Home" ? rate.dot : brand.accent },
+                { backgroundColor: mode === "Home" ? rate.dot : brand.koi },
               ]}
             />
             <Text

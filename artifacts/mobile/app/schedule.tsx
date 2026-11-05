@@ -91,7 +91,7 @@ export default function ScheduleScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.headerRow}>
-        <Text style={[styles.title, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+        <Text style={[styles.title, { color: colors.foreground, fontFamily: "Figtree_700Bold" }]}>
           Schedule
         </Text>
         <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.primary }]}>
@@ -120,7 +120,7 @@ export default function ScheduleScreen() {
                     i === TODAY_IDX
                       ? colors.primaryForeground
                       : colors.mutedForeground,
-                  fontFamily: "Inter_500Medium",
+                  fontFamily: "Figtree_500Medium",
                 },
               ]}
             >
@@ -131,7 +131,7 @@ export default function ScheduleScreen() {
       </View>
 
       <Text
-        style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}
+        style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Figtree_500Medium" }]}
       >
         APPLIANCE SCHEDULES
       </Text>
@@ -151,10 +151,10 @@ export default function ScheduleScreen() {
             <Ionicons name={item.icon as any} size={20} color={colors.primary} />
           </View>
           <View style={styles.scheduleInfo}>
-            <Text style={[styles.scheduleName, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+            <Text style={[styles.scheduleName, { color: colors.foreground, fontFamily: "Figtree_600SemiBold" }]}>
               {item.device}
             </Text>
-            <Text style={[styles.scheduleTime, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+            <Text style={[styles.scheduleTime, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}>
               {item.startTime} – {item.endTime}
             </Text>
             <View style={styles.daysRow}>
@@ -187,7 +187,7 @@ export default function ScheduleScreen() {
         style={[styles.tipCard, { backgroundColor: colors.accent + "15", borderColor: colors.accent + "30" }]}
       >
         <Ionicons name="information-circle-outline" size={18} color={colors.accent} />
-        <Text style={[styles.tipText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+        <Text style={[styles.tipText, { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" }]}>
           Scheduling heavy appliances during off-peak hours (after 9 PM) can
           reduce your bill by up to 35%.
         </Text>

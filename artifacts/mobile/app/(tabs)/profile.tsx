@@ -53,7 +53,7 @@ function SettingsRow({
       <Text
         style={[
           styles.settingsLabel,
-          { color: colors.foreground, fontFamily: "Inter_500Medium" },
+          { color: colors.foreground, fontFamily: "Figtree_500Medium" },
         ]}
       >
         {label}
@@ -65,7 +65,7 @@ function SettingsRow({
               styles.settingsValue,
               {
                 color: colors.mutedForeground,
-                fontFamily: "Inter_400Regular",
+                fontFamily: "Figtree_400Regular",
               },
             ]}
           >
@@ -104,7 +104,7 @@ export default function ProfileScreen() {
       <Text
         style={[
           styles.title,
-          { color: colors.foreground, fontFamily: "Inter_700Bold" },
+          { color: colors.foreground, fontFamily: "Figtree_700Bold" },
         ]}
       >
         Profile
@@ -128,7 +128,7 @@ export default function ProfileScreen() {
           <Text
             style={[
               styles.avatarText,
-              { color: colors.primary, fontFamily: "Inter_700Bold" },
+              { color: colors.primary, fontFamily: "Figtree_700Bold" },
             ]}
           >
             {initial}
@@ -138,7 +138,7 @@ export default function ProfileScreen() {
           <Text
             style={[
               styles.userName,
-              { color: colors.foreground, fontFamily: "Inter_700Bold" },
+              { color: colors.foreground, fontFamily: "Figtree_700Bold" },
             ]}
           >
             {displayName}
@@ -148,7 +148,7 @@ export default function ProfileScreen() {
               styles.userEmail,
               {
                 color: colors.mutedForeground,
-                fontFamily: "Inter_400Regular",
+                fontFamily: "Figtree_400Regular",
               },
             ]}
           >
@@ -174,7 +174,7 @@ export default function ProfileScreen() {
             <Text
               style={[
                 styles.planName,
-                { color: colors.foreground, fontFamily: "Inter_700Bold" },
+                { color: colors.foreground, fontFamily: "Figtree_700Bold" },
               ]}
             >
               Green Home Pro
@@ -184,7 +184,7 @@ export default function ProfileScreen() {
                 styles.planDesc,
                 {
                   color: colors.mutedForeground,
-                  fontFamily: "Inter_400Regular",
+                  fontFamily: "Figtree_400Regular",
                 },
               ]}
             >
@@ -200,7 +200,7 @@ export default function ProfileScreen() {
             <Text
               style={[
                 styles.planBadgeText,
-                { color: colors.primary, fontFamily: "Inter_600SemiBold" },
+                { color: colors.primary, fontFamily: "Figtree_600SemiBold" },
               ]}
             >
               Active
@@ -212,7 +212,7 @@ export default function ProfileScreen() {
             <Text
               style={[
                 styles.planStatVal,
-                { color: colors.foreground, fontFamily: "Inter_700Bold" },
+                { color: colors.foreground, fontFamily: "Figtree_700Bold" },
               ]}
             >
               £85
@@ -222,7 +222,7 @@ export default function ProfileScreen() {
                 styles.planStatLabel,
                 {
                   color: colors.mutedForeground,
-                  fontFamily: "Inter_400Regular",
+                  fontFamily: "Figtree_400Regular",
                 },
               ]}
             >
@@ -234,7 +234,7 @@ export default function ProfileScreen() {
             <Text
               style={[
                 styles.planStatVal,
-                { color: colors.foreground, fontFamily: "Inter_700Bold" },
+                { color: colors.foreground, fontFamily: "Figtree_700Bold" },
               ]}
             >
               £38.50
@@ -244,7 +244,7 @@ export default function ProfileScreen() {
                 styles.planStatLabel,
                 {
                   color: colors.mutedForeground,
-                  fontFamily: "Inter_400Regular",
+                  fontFamily: "Figtree_400Regular",
                 },
               ]}
             >
@@ -256,7 +256,7 @@ export default function ProfileScreen() {
             <Text
               style={[
                 styles.planStatVal,
-                { color: colors.foreground, fontFamily: "Inter_700Bold" },
+                { color: colors.foreground, fontFamily: "Figtree_700Bold" },
               ]}
             >
               18.2 kg
@@ -266,7 +266,7 @@ export default function ProfileScreen() {
                 styles.planStatLabel,
                 {
                   color: colors.mutedForeground,
-                  fontFamily: "Inter_400Regular",
+                  fontFamily: "Figtree_400Regular",
                 },
               ]}
             >
@@ -279,7 +279,7 @@ export default function ProfileScreen() {
       <Text
         style={[
           styles.sectionLabel,
-          { color: colors.mutedForeground, fontFamily: "Inter_500Medium" },
+          { color: colors.mutedForeground, fontFamily: "Figtree_500Medium" },
         ]}
       >
         PREFERENCES
@@ -303,7 +303,7 @@ export default function ProfileScreen() {
           <Text
             style={[
               styles.settingsLabel,
-              { color: colors.foreground, fontFamily: "Inter_500Medium" },
+              { color: colors.foreground, fontFamily: "Figtree_500Medium" },
             ]}
           >
             Dark Mode
@@ -314,7 +314,7 @@ export default function ProfileScreen() {
                 styles.settingsValue,
                 {
                   color: colors.mutedForeground,
-                  fontFamily: "Inter_400Regular",
+                  fontFamily: "Figtree_400Regular",
                   marginRight: 8,
                 },
               ]}
@@ -337,7 +337,7 @@ export default function ProfileScreen() {
       <Text
         style={[
           styles.sectionLabel,
-          { color: colors.mutedForeground, fontFamily: "Inter_500Medium" },
+          { color: colors.mutedForeground, fontFamily: "Figtree_500Medium" },
         ]}
       >
         ACCOUNT
@@ -369,7 +369,7 @@ export default function ProfileScreen() {
       <Text
         style={[
           styles.version,
-          { color: colors.mutedForeground, fontFamily: "Inter_400Regular" },
+          { color: colors.mutedForeground, fontFamily: "Figtree_400Regular" },
         ]}
       >
         Aura Spaces v1.0.0
