@@ -1,8 +1,10 @@
 import EnergyHouseHero from "@/components/EnergyHouseHero";
+import UsageCard from "@/components/UsageCard";
 import { useAuth } from "@/context/AuthContext";
 import { useEnergy } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
-import { semantic } from "@/theme/tokens";
+import { openUswitch } from "@/lib/links";
+import { radius } from "@/theme/tokens";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -36,56 +38,6 @@ function Card({
       ]}
     >
       {children}
-    </View>
-  );
-}
-
-function MiniBars({
-  values,
-  color,
-  labels,
-}: {
-  values: number[];
-  color: string;
-  labels: string[];
-}) {
-  const colors = useColors();
-  const max = Math.max(...values, 0.01);
-  const chartHeight = 110;
-  return (
-    <View style={styles.chartWrap}>
-      <View style={[styles.barsRow, { height: chartHeight }]}>
-        {values.map((v, i) => {
-          const h = Math.max((v / max) * chartHeight, 4);
-          return (
-            <View key={`${labels[i] ?? i}`} style={styles.barCol}>
-              <View style={[styles.barTrack, { height: chartHeight }]}>
-                <View
-                  style={[
-                    styles.barFill,
-                    {
-                      height: h,
-                      backgroundColor: color,
-                    },
-                  ]}
-                />
-              </View>
-              <Text
-                style={[
-                  styles.barLabel,
-                  {
-                    color: colors.mutedForeground,
-                    fontFamily: "Figtree_400Regular",
-                  },
-                ]}
-                numberOfLines={1}
-              >
-                {labels[i] ?? ""}
-              </Text>
-            </View>
-          );
-        })}
-      </View>
     </View>
   );
 }
@@ -275,137 +227,22 @@ export default function HomeWideDashboard() {
           contentContainerStyle={styles.colContent}
           showsVerticalScrollIndicator={false}
         >
-          <Card>
-            <View style={styles.cardHeader}>
-              <Text
-                style={[
-                  styles.cardTitle,
-                  {
-                    color: colors.foreground,
-                    fontFamily: "Figtree_600SemiBold",
-                  },
-                ]}
-              >
-                Today
-              </Text>
-              <View
-                style={[styles.segment, { backgroundColor: colors.secondary }]}
-              >
-                {(["Day", "Week", "Month"] as const).map((tab) => (
-                  <TouchableOpacity
-                    key={tab}
-                    style={[
-                      styles.segmentBtn,
-                      range === tab && { backgroundColor: colors.card },
-                    ]}
-                    onPress={() => setRange(tab)}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        color:
-                          range === tab
-                            ? colors.foreground
-                            : colors.mutedForeground,
-                        fontFamily: "Figtree_500Medium",
-                      }}
-                    >
-                      {tab}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <Text
-              style={{
-                color: colors.foreground,
-                fontFamily: "Figtree_600SemiBold",
-                fontSize: 14,
-                marginBottom: 4,
-              }}
-            >
-              Home usage {elecKwh.toFixed(1)} kWh
-            </Text>
-            <View style={styles.legend}>
-              <View style={styles.legendItem}>
-                <View
-                  style={[
-                    styles.legendDot,
-                    { backgroundColor: colors.primary },
-                  ]}
-                />
-                <Text
-                  style={{
-                    color: colors.mutedForeground,
-                    fontSize: 11,
-                    fontFamily: "Figtree_400Regular",
-                  }}
-                >
-                  Electricity
-                </Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: semantic.gas }]}
-                />
-                <Text
-                  style={{
-                    color: colors.mutedForeground,
-                    fontSize: 11,
-                    fontFamily: "Figtree_400Regular",
-                  }}
-                >
-                  Gas
-                </Text>
-              </View>
-            </View>
-            <MiniBars
-              values={chartValues}
-              labels={chartLabels}
-              color={colors.primary}
-            />
-            <TouchableOpacity
-              onPress={() => router.push("/(tabs)/insights")}
-              style={{ alignSelf: "flex-end", marginTop: 8 }}
-            >
-              <Text
-                style={{
-                  color: colors.primary,
-                  fontFamily: "Figtree_500Medium",
-                  fontSize: 13,
-                }}
-              >
-                Open Insights
-              </Text>
-            </TouchableOpacity>
-          </Card>
-
-          <Card>
-            <Text
-              style={{
-                color: colors.foreground,
-                fontFamily: "Figtree_600SemiBold",
-                fontSize: 14,
-                marginBottom: 4,
-              }}
-            >
-              Gas {gasToday != null ? `${gasToday.toFixed(1)} kWh` : "—"}
-            </Text>
-            <MiniBars
-              values={
-                gasWeekly.length
+          <UsageCard
+            style={styles.usageCard}
+            range={range}
+            onRangeChange={setRange}
+            electricityKwh={elecKwh}
+            gasKwh={gasToday ?? null}
+            labels={chartLabels}
+            electricity={chartValues}
+            gas={
+              range === "Day"
+                ? undefined
+                : gasWeekly.length
                   ? gasWeekly
                   : [1.2, 1.8, 1.5, 2.0, 1.6, 1.4, gasToday ?? 1.5]
-              }
-              labels={
-                weekLabels.length
-                  ? weekLabels
-                  : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-              }
-              color={semantic.gas}
-            />
-          </Card>
+            }
+          />
 
           <Card>
             <View style={styles.cardHeader}>
@@ -714,7 +551,7 @@ export default function HomeWideDashboard() {
             </Text>
             <TouchableOpacity
               style={[styles.compareCta, { backgroundColor: colors.primary }]}
-              onPress={() => router.push("/recommendations")}
+              onPress={openUswitch}
               activeOpacity={0.85}
             >
               <Ionicons
@@ -828,7 +665,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    borderRadius: 8,
+    borderRadius: radius.pill,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
@@ -839,7 +676,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 8,
+    borderRadius: radius.pill,
     paddingHorizontal: 14,
     paddingVertical: 12,
     minWidth: 220,
@@ -858,6 +695,7 @@ const styles = StyleSheet.create({
   col: { flex: 1, minWidth: 0 },
   detailsCol: { flex: 0.92 },
   colContent: { gap: 16, paddingBottom: 24 },
+  usageCard: { marginHorizontal: 0, marginBottom: 0 },
   card: {
     borderRadius: 12,
     borderWidth: StyleSheet.hairlineWidth,
@@ -874,7 +712,7 @@ const styles = StyleSheet.create({
   cardMeta: { fontSize: 12, marginTop: 2 },
   segment: {
     flexDirection: "row",
-    borderRadius: 8,
+    borderRadius: radius.pill,
     padding: 3,
     gap: 2,
   },
@@ -884,7 +722,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 7,
-    borderRadius: 6,
+    borderRadius: radius.pill,
   },
   liveBody: {
     alignItems: "center",
@@ -926,37 +764,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  legend: {
-    flexDirection: "row",
-    gap: 14,
-    marginBottom: 12,
-  },
-  legendItem: { flexDirection: "row", alignItems: "center", gap: 6 },
-  legendDot: { width: 8, height: 8, borderRadius: 2 },
-  chartWrap: { marginTop: 4, marginBottom: 4 },
-  barsRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    gap: 6,
-  },
-  barCol: { flex: 1, alignItems: "center" },
-  barTrack: {
-    width: "70%",
-    justifyContent: "flex-end",
-  },
-  barFill: {
-    width: "100%",
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    borderBottomLeftRadius: 2,
-    borderBottomRightRadius: 2,
-    minHeight: 4,
-  },
-  barLabel: { fontSize: 9, marginTop: 6 },
   actionsRow: { flexDirection: "row", gap: 10 },
   primaryBtn: {
     flex: 1,
-    borderRadius: 8,
+    borderRadius: radius.pill,
     paddingVertical: 13,
     flexDirection: "row",
     alignItems: "center",
@@ -965,7 +776,7 @@ const styles = StyleSheet.create({
   },
   editBtn: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 8,
+    borderRadius: radius.pill,
     paddingHorizontal: 14,
     paddingVertical: 9,
     alignItems: "center",
@@ -994,7 +805,7 @@ const styles = StyleSheet.create({
   evTitle: { fontSize: 18, marginTop: 8 },
   compareCta: {
     marginTop: 14,
-    borderRadius: 8,
+    borderRadius: radius.pill,
     paddingVertical: 12,
     paddingHorizontal: 12,
     flexDirection: "row",

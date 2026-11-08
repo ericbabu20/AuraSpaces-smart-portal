@@ -1,11 +1,13 @@
 import AuraCard from "@/components/AuraCard";
 import EnergyHouseHero from "@/components/EnergyHouseHero";
 import HomeWideDashboard from "@/components/HomeWideDashboard";
+import UsageCard from "@/components/UsageCard";
 import { useAuth } from "@/context/AuthContext";
 import { useEnergy } from "@/context/EnergyContext";
 import { useColors } from "@/hooks/useColors";
 import { useIsWideLayout } from "@/hooks/useIsWideLayout";
-import { category, radius, semantic } from "@/theme/tokens";
+import { openUswitch } from "@/lib/links";
+import { category, radius } from "@/theme/tokens";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -20,48 +22,6 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-function MiniBars({
-  values,
-  color,
-  labels,
-}: {
-  values: number[];
-  color: string;
-  labels: string[];
-}) {
-  const colors = useColors();
-  const max = Math.max(...values, 0.01);
-  const chartHeight = 88;
-  return (
-    <View style={[styles.barsRow, { height: chartHeight }]}>
-      {values.map((v, i) => {
-        const h = Math.max((v / max) * chartHeight, 4);
-        return (
-          <View key={`${labels[i] ?? i}`} style={styles.barCol}>
-            <View style={[styles.barTrack, { height: chartHeight }]}>
-              <View
-                style={[styles.barFill, { height: h, backgroundColor: color }]}
-              />
-            </View>
-            <Text
-              style={[
-                styles.barLabel,
-                {
-                  color: colors.mutedForeground,
-                  fontFamily: "Figtree_400Regular",
-                },
-              ]}
-              numberOfLines={1}
-            >
-              {labels[i] ?? ""}
-            </Text>
-          </View>
-        );
-      })}
-    </View>
-  );
-}
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -161,104 +121,22 @@ export default function HomeScreen() {
       {/* Aura AI — just after the live hero */}
       <AuraCard />
 
-      {/* Today usage — from desktop */}
-      <View
-        style={[
-          styles.card,
-          { backgroundColor: colors.card, borderColor: colors.border },
-        ]}
-      >
-        <View style={styles.cardHeader}>
-          <Text
-            style={[
-              styles.cardTitle,
-              { color: colors.foreground, fontFamily: "Figtree_600SemiBold" },
-            ]}
-          >
-            Today
-          </Text>
-          <View
-            style={[styles.segment, { backgroundColor: colors.secondary }]}
-          >
-            {(["Day", "Week", "Month"] as const).map((tab) => (
-              <TouchableOpacity
-                key={tab}
-                style={[
-                  styles.segmentBtn,
-                  range === tab && { backgroundColor: colors.background },
-                ]}
-                onPress={() => setRange(tab)}
-              >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    color:
-                      range === tab
-                        ? colors.foreground
-                        : colors.mutedForeground,
-                    fontFamily: "Figtree_500Medium",
-                  }}
-                >
-                  {tab}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-        <Text
-          style={{
-            color: colors.foreground,
-            fontFamily: "Figtree_600SemiBold",
-            fontSize: 14,
-            marginBottom: 10,
-          }}
-        >
-          Home usage {elecKwh.toFixed(1)} kWh
-        </Text>
-        <MiniBars
-          values={chartValues}
-          labels={chartLabels}
-          color={colors.primary}
-        />
-        <Text
-          style={{
-            color: colors.foreground,
-            fontFamily: "Figtree_600SemiBold",
-            fontSize: 14,
-            marginTop: 16,
-            marginBottom: 10,
-          }}
-        >
-          Gas {gasToday != null ? `${gasToday.toFixed(1)} kWh` : "—"}
-        </Text>
-        <MiniBars
-          values={
-            gasWeekly.length
+      {/* Usage */}
+      <UsageCard
+        range={range}
+        onRangeChange={setRange}
+        electricityKwh={elecKwh}
+        gasKwh={gasToday ?? null}
+        labels={chartLabels}
+        electricity={chartValues}
+        gas={
+          range === "Day"
+            ? undefined
+            : gasWeekly.length
               ? gasWeekly
               : [1.2, 1.8, 1.5, 2.0, 1.6, 1.4, gasToday ?? 1.5]
-          }
-          labels={
-            weekLabels.length
-              ? weekLabels
-              : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-          }
-          color={semantic.gas}
-        />
-        <TouchableOpacity
-          onPress={() => router.push("/(tabs)/insights")}
-          style={{ alignSelf: "flex-end", marginTop: 12 }}
-        >
-          <Text
-            style={{
-              color: colors.primary,
-              fontFamily: "Figtree_500Medium",
-              fontSize: 13,
-            }}
-          >
-            Open Insights
-          </Text>
-        </TouchableOpacity>
-      </View>
+        }
+      />
 
       {/* EV charging — from desktop */}
       <View
@@ -522,7 +400,7 @@ export default function HomeScreen() {
         </Text>
         <TouchableOpacity
           style={[styles.compareCta, { backgroundColor: colors.primary }]}
-          onPress={() => router.push("/recommendations")}
+          onPress={openUswitch}
           activeOpacity={0.85}
         >
           <Ionicons
@@ -717,7 +595,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 10,
+    borderRadius: radius.pill,
   },
   promptRow: {
     flexDirection: "row",
@@ -750,7 +628,7 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 17 },
   segment: {
     flexDirection: "row",
-    borderRadius: 9,
+    borderRadius: radius.pill,
     padding: 2,
     gap: 2,
   },
@@ -760,7 +638,7 @@ const styles = StyleSheet.create({
     gap: 5,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 7,
+    borderRadius: radius.pill,
   },
   liveBody: {
     alignItems: "center",
@@ -793,7 +671,7 @@ const styles = StyleSheet.create({
   },
   editBtn: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 8,
+    borderRadius: radius.pill,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
@@ -851,7 +729,7 @@ const styles = StyleSheet.create({
   },
   compareCta: {
     marginTop: 14,
-    borderRadius: radius.md,
+    borderRadius: radius.pill,
     paddingVertical: 13,
     paddingHorizontal: 14,
     flexDirection: "row",

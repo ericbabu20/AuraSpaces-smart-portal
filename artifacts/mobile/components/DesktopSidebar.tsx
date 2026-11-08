@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    borderRadius: radius.md,
+    borderRadius: radius.pill,
     minHeight: 40,
     paddingHorizontal: 14,
   },
