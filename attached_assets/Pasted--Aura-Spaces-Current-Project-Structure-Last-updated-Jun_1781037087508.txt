@@ -1,0 +1,295 @@
+# Aura Spaces — Current Project Structure
+
+Last updated: June 2026
+
+This document describes the **current state of the `aura-spaces` repository**, including the active Next.js web app, legacy Expo prototype files, database assets, and the Next.js build output.
+
+---
+
+## Quick summary
+
+| Area | Status |
+|------|--------|
+| **Active web app** | Next.js 15 (App Router) |
+| **Marketing site** | `/` — Aura Energy Assistant landing page |
+| **Home dashboard** | `/home/*` — Stitch-based smart-home UI (10 screens) |
+| **Legacy mobile app** | Expo/React Native files kept in repo, not part of active Next build |
+| **Database** | Supabase migrations + seed (Phase 1 foundation) |
+| **Build output** | `.next/` (generated; do not edit manually) |
+
+---
+
+## How to run
+
+```bash
+npm install
+npm run dev
+```
+
+Recommended on macOS if file watching fails:
+
+```bash
+WATCHPACK_POLLING=true npm run dev -- -H 127.0.0.1 -p 3000
+```
+
+Other scripts:
+
+| Script | Purpose |
+|--------|---------|
+| `npm run build` | Production build → `.next/` |
+| `npm run start` | Serve production build |
+| `npm run lint` | ESLint (active web files only) |
+| `npm run typecheck` | TypeScript check |
+| `npm run test` | Vitest (configured, minimal tests so far) |
+
+Environment template: `.env.example`
+
+---
+
+## Live routes (Next.js)
+
+| Route | Screen |
+|-------|--------|
+| `/` | Marketing landing page |
+| `/home` | Home Dashboard |
+| `/home/aura` | Voice Assistant |
+| `/home/recommendations` | Recommendations |
+| `/home/devices` | Devices Overview |
+| `/home/devices/thermostat` | Thermostat Control |
+| `/home/devices/schedule` | Appliance Scheduling |
+| `/home/insights` | Energy Insights |
+| `/home/automation` | Automation Preferences |
+| `/home/connect` | Connect a Device |
+| `/home/activity` | Activity & Savings |
+| `/home/profile` | Profile |
+
+**Not built yet (planned MVP):** `/energy-check`, `/login`, `/dashboard`, `/admin`, API routes.
+
+---
+
+## Folder tree (active + important)
+
+```text
+aura-spaces/
+├── app/                          # Next.js App Router (ACTIVE)
+│   ├── layout.tsx                # Root layout, fonts, global HTML shell
+│   ├── (site)/                   # Marketing site route group
+│   │   ├── layout.tsx            # Site header + footer
+│   │   └── page.tsx              # Landing page (/)
+│   └── home/                     # Aura Home Dashboard
+│       ├── layout.tsx            # Dashboard typography shell
+│       ├── page.tsx              # Home Dashboard
+│       ├── aura/page.tsx         # Voice Assistant
+│       ├── recommendations/page.tsx
+│       ├── insights/page.tsx
+│       ├── activity/page.tsx
+│       ├── automation/page.tsx
+│       ├── connect/page.tsx
+│       ├── profile/page.tsx
+│       └── devices/
+│           ├── page.tsx          # Devices Overview
+│           ├── thermostat/page.tsx
+│           └── schedule/page.tsx
+│
+├── components/
+│   ├── app-header.tsx            # Marketing site header
+│   ├── app-footer.tsx            # Marketing site footer
+│   ├── aura-logo.tsx
+│   ├── trust-badge.tsx
+│   └── dashboard/                # Home dashboard UI (ACTIVE)
+│       ├── bottom-nav.tsx
+│       ├── dashboard-header.tsx
+│       ├── editorial-card.tsx
+│       └── page-shell.tsx
+│
+├── lib/
+│   ├── utils.ts                  # Tailwind class merge helper
+│   ├── dashboard/nav.ts          # Bottom nav config + active state
+│   └── supabase/                 # Supabase clients (Phase 1)
+│       ├── client.ts             # Browser client
+│       ├── server.ts             # Server/client cookie client
+│       └── admin.ts              # Service-role client (server only)
+│
+├── types/
+│   └── energy.ts                 # Energy plan TypeScript types
+│
+├── public/
+│   └── stitch/                   # Downloaded Stitch design assets
+│       ├── manifest.json
+│       ├── home-dashboard.{html,png}
+│       ├── voice-assistant.{html,png}
+│       ├── recommendations.{html,png}
+│       ├── devices-overview.{html,png}
+│       ├── thermostat-control.{html,png}
+│       ├── appliance-scheduling.{html,png}
+│       ├── energy-insights.{html,png}
+│       ├── automation-preferences.{html,png}
+│       ├── connect-device.{html,png}
+│       └── activity-savings.{html,png}
+│
+├── scripts/
+│   └── fetch-stitch-assets.mjs   # Pulls HTML + PNG from Stitch API
+│
+├── supabase/
+│   ├── migrations/
+│   │   └── 20260607223000_aura_energy_foundation.sql
+│   └── seed.sql                  # Knowledge-base placeholder facts
+│
+├── global.css                    # Aura brand tokens + Tailwind layers
+├── tailwind.config.js
+├── postcss.config.js
+├── next.config.ts
+├── tsconfig.json
+├── eslint.config.mjs
+├── .prettierrc
+├── .env.example
+├── package.json
+└── .next/                        # BUILD OUTPUT (generated)
+```
+
+---
+
+## `.next/` build folder
+
+Created by `npm run dev` or `npm run build`. **Do not commit or edit manually.**
+
+```text
+.next/
+├── cache/                        # Webpack, SWC, ESLint caches
+├── server/                       # Server bundles
+│   └── app/
+│       ├── (site)/               # Marketing routes
+│       └── home/                 # Dashboard routes
+├── static/                       # Client JS, CSS, fonts, media
+│   ├── chunks/
+│   ├── css/
+│   └── media/
+└── types/                        # Generated route types
+```
+
+After `npm run build`, Next.js also emits optimised static pages for all 15 app routes listed in the build output.
+
+---
+
+## Configuration files
+
+| File | Purpose |
+|------|---------|
+| `next.config.ts` | Next settings, ESLint scope, webpack watch ignores |
+| `tailwind.config.js` | Aura + dashboard colour tokens, fonts |
+| `global.css` | CSS variables, `.aura-card`, `.aura-container` |
+| `tsconfig.json` | TypeScript; scoped to active web app (excludes legacy RN from strict check) |
+| `eslint.config.mjs` | Next ESLint via FlatCompat |
+| `.env.example` | Supabase, Anthropic, demo mode vars |
+
+---
+
+## Dependencies (high level)
+
+**Runtime:** Next.js 15, React 19, Tailwind, Supabase, Anthropic SDK, Zod, React Hook Form, Recharts, Lucide, `@google/stitch-sdk`
+
+**Dev:** TypeScript, ESLint, Prettier, Vitest, Testing Library
+
+---
+
+## Legacy Expo prototype (kept, not active in Next build)
+
+These files remain from the original React Native / Expo app. They are **not** included in the active TypeScript/lint scope for the web MVP:
+
+```text
+App.tsx
+app.json
+metro.config.js
+run-web.sh
+start-tunnel.sh
+screens/
+├── HomeScreen.tsx
+└── ModernDashboard.tsx
+components/                       # ~35 React Native dashboard components
+constants/
+├── Colors.ts
+├── MockData.ts
+├── AuraTheme.ts
+└── ...
+assets/                           # Expo app icons
+.expo/
+```
+
+---
+
+## Documentation files (existing)
+
+| File | Notes |
+|------|-------|
+| `README.md` | Original Expo readme (may be outdated) |
+| `SETUP.md` | Original Expo setup (may be outdated) |
+| `APP_SPECIFICATION.md` | Earlier product spec |
+| `FEATURES_IMPLEMENTED.md` | Legacy mobile features |
+| `PRODUCT_STRATEGY.md` | Strategy notes |
+| `PRODUCT_EVALUATION_AND_ROADMAP.md` | Roadmap notes |
+| `DELIVERABLES.md` | Deliverables list |
+| `MODERN_DESIGN_SUMMARY.md` | Design notes |
+| `UI_REFINEMENTS.md` | UI notes |
+| `CONNECTION-FIX.md` | Expo connection fix notes |
+
+---
+
+## Stitch integration
+
+**Project:** Aura Home Dashboard  
+**Project ID:** `2748978569680251081`
+
+Assets were fetched with:
+
+```bash
+STITCH_API_KEY=your-key node scripts/fetch-stitch-assets.mjs
+```
+
+Reference designs live in `public/stitch/`. The React UI in `app/home/` was built to match those screens.
+
+---
+
+## Supabase schema (Phase 1)
+
+Tables defined in migration:
+
+- `profiles`
+- `sessions`
+- `energy_inputs`
+- `messages`
+- `recommendations`
+- `verdicts`
+- `kb_articles`
+- `leads`
+
+Seed data: placeholder knowledge-base articles in `supabase/seed.sql`.
+
+---
+
+## What is complete vs pending
+
+### Complete
+- Next.js foundation + brand theme
+- Marketing landing page
+- Full Home Dashboard UI (10 Stitch screens)
+- Supabase client setup + SQL migration + seed
+- Stitch asset download script
+- Typecheck, lint, production build
+
+### Pending (from original MVP spec)
+- Energy-check onboarding flow (`/energy-check`)
+- Results page + Claude API route
+- Auth (`/login`, `/signup`)
+- Customer dashboard (`/dashboard`)
+- Admin dashboard (`/admin`)
+- Referral consent flow
+- Tests and full README/docs refresh
+
+---
+
+## Local URLs
+
+| URL | Description |
+|-----|-------------|
+| http://127.0.0.1:3000 | Marketing landing |
+| http://127.0.0.1:3000/home | Home dashboard |

@@ -1,0 +1,481 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useQuery } from "@tanstack/react-query";
+import React, { createContext, useContext, useEffect, useState } from "react";
+
+import { useAuth } from "@/context/AuthContext";
+import { getConsumption, getPrepayBalances, type FuelBalance } from "@/lib/backend";
+import {
+  loadEnergyState,
+  saveConsumption,
+  saveDevices,
+  saveEnergyProfile,
+} from "@/lib/energyData";
+
+export interface Device {
+  id: string;
+  name: string;
+  category: "climate" | "lighting" | "appliance" | "ev" | "security" | "other";
+  isOn: boolean;
+  powerDraw: number;
+  icon: string;
+  room: string;
+}
+
+export interface Recommendation {
+  id: string;
+  title: string;
+  description: string;
+  savingsPerMonth: number;
+  category: string;
+  difficulty: "easy" | "medium" | "hard";
+  icon: string;
+}
+
+export interface ActivityItem {
+  id: string;
+  description: string;
+  timestamp: Date;
+  type: "device" | "automation" | "savings" | "alert";
+  icon: string;
+}
+
+export interface AutomationRule {
+  id: string;
+  name: string;
+  trigger: string;
+  action: string;
+  isEnabled: boolean;
+  icon: string;
+}
+
+/** Which energy assets this household actually owns. */
+export interface EnergyProfile {
+  hasSolar: boolean;
+  hasBattery: boolean;
+  hasEv: boolean;
+  hasGas: boolean;
+}
+
+const DEFAULT_PROFILE: EnergyProfile = {
+  hasSolar: false,
+  hasBattery: false,
+  hasEv: true,
+  hasGas: true,
+};
+
+interface EnergyContextType {
+  energyProfile: EnergyProfile;
+  setEnergyProfile: (patch: Partial<EnergyProfile>) => void;
+  devices: Device[];
+  addDevice: (input: {
+    name: string;
+    category: Device["category"];
+    icon: string;
+    room?: string;
+  }) => void;
+  toggleDevice: (id: string) => void;
+  recommendations: Recommendation[];
+  activity: ActivityItem[];
+  automations: AutomationRule[];
+  toggleAutomation: (id: string) => void;
+  currentUsage: number;
+  usagePercent: number;
+  moneySaved: number;
+  carbonOffset: number;
+  weeklyData: number[];
+  electricityToday: number | null;
+  gasToday: number | null;
+  electricityWeekly: number[];
+  gasWeekly: number[];
+  weekLabels: string[];
+  consumptionLoading: boolean;
+  consumptionError: boolean;
+  isSampleData: boolean;
+  electricityBalance: FuelBalance | null;
+  gasBalance: FuelBalance | null;
+  thermostatTemp: number;
+  setThermostatTemp: (temp: number) => void;
+  thermostatMode: "cool" | "heat" | "fan" | "off";
+  setThermostatMode: (mode: "cool" | "heat" | "fan" | "off") => void;
+}
+
+const EnergyContext = createContext<EnergyContextType | null>(null);
+
+const RECOMMENDATIONS: Recommendation[] = [
+  {
+    id: "1",
+    title: "Shift dishwasher to off-peak",
+    description:
+      "Running after 9 PM uses the cheaper Economy 7 off-peak rate instead of peak.",
+    savingsPerMonth: 9,
+    category: "appliance",
+    difficulty: "easy",
+    icon: "time-outline",
+  },
+  {
+    id: "2",
+    title: "Lower thermostat by 2°",
+    description:
+      "Reducing from 21°C to 19°C cuts heating costs by up to 15% with no noticeable comfort difference.",
+    savingsPerMonth: 24,
+    category: "climate",
+    difficulty: "easy",
+    icon: "thermometer-outline",
+  },
+  {
+    id: "3",
+    title: "Smart EV overnight charging",
+    description:
+      "Enabling scheduled off-peak charging between 12:30–4:30 AM uses your cheapest overnight EV tariff rate.",
+    savingsPerMonth: 38,
+    category: "ev",
+    difficulty: "medium",
+    icon: "car-outline",
+  },
+  {
+    id: "4",
+    title: "Switch to LED bulbs",
+    description:
+      "Replacing remaining incandescent bulbs reduces lighting energy use by up to 75%.",
+    savingsPerMonth: 6,
+    category: "lighting",
+    difficulty: "easy",
+    icon: "bulb-outline",
+  },
+];
+
+const ACTIVITY: ActivityItem[] = [
+  {
+    id: "1",
+    description: "Thermostat adjusted to 22°C by Aura AI",
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    type: "device",
+    icon: "thermometer-outline",
+  },
+  {
+    id: "2",
+    description: "Peak hours detected — 3 devices switched to eco mode",
+    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
+    type: "automation",
+    icon: "flash-outline",
+  },
+  {
+    id: "3",
+    description: "Washing machine cycle completed",
+    timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000),
+    type: "device",
+    icon: "water-outline",
+  },
+  {
+    id: "4",
+    description: "Saved £2.80 by shifting EV charging to off-peak",
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    type: "savings",
+    icon: "leaf-outline",
+  },
+  {
+    id: "5",
+    description: "Living room lights turned off automatically",
+    timestamp: new Date(Date.now() - 26 * 60 * 60 * 1000),
+    type: "automation",
+    icon: "bulb-outline",
+  },
+  {
+    id: "6",
+    description: "Energy bill estimate updated: £85 this month",
+    timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000),
+    type: "alert",
+    icon: "document-text-outline",
+  },
+  {
+    id: "7",
+    description: "AC Unit switched to eco mode for 2 hours",
+    timestamp: new Date(Date.now() - 50 * 60 * 60 * 1000),
+    type: "automation",
+    icon: "snow-outline",
+  },
+];
+
+const AUTOMATIONS: AutomationRule[] = [
+  {
+    id: "1",
+    name: "Peak Hours Eco Mode",
+    trigger: "Peak pricing detected",
+    action: "Reduce AC + dim lights by 30%",
+    isEnabled: true,
+    icon: "flash-outline",
+  },
+  {
+    id: "2",
+    name: "Away Mode",
+    trigger: "All phones leave home",
+    action: "Turn off lights, lower thermostat",
+    isEnabled: true,
+    icon: "exit-outline",
+  },
+  {
+    id: "3",
+    name: "EV Night Charging",
+    trigger: "After 11 PM",
+    action: "Start EV charge at off-peak rate",
+    isEnabled: true,
+    icon: "car-outline",
+  },
+  {
+    id: "4",
+    name: "Morning Warm-up",
+    trigger: "6:30 AM on weekdays",
+    action: "Heat home to 21°C before wake-up",
+    isEnabled: false,
+    icon: "sunny-outline",
+  },
+  {
+    id: "5",
+    name: "Sleep Mode",
+    trigger: "10 PM daily",
+    action: "Dim all lights, lower AC to 20°C",
+    isEnabled: true,
+    icon: "moon-outline",
+  },
+];
+
+const SAMPLE_ELEC_WEEK = [12.4, 9.8, 11.2, 14.6, 10.3, 8.9, 11.7];
+const SAMPLE_GAS_WEEK = [28.5, 31.2, 26.8, 24.1, 33.0, 30.4, 22.6];
+const WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const FALLBACK_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+export function EnergyProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const [devices, setDevices] = useState<Device[]>([]);
+  const [automations, setAutomations] =
+    useState<AutomationRule[]>(AUTOMATIONS);
+  const [energyProfile, setEnergyProfileState] =
+    useState<EnergyProfile>(DEFAULT_PROFILE);
+  const [thermostatTemp, setThermostatTempState] = useState(22);
+  const [thermostatMode, setThermostatModeState] = useState<
+    "cool" | "heat" | "fan" | "off"
+  >("cool");
+
+  useEffect(() => {
+    loadState();
+    if (user) {
+      loadEnergyState(user.id)
+        .then((cloud) => {
+          if (cloud.profile) setEnergyProfileState(cloud.profile);
+          setDevices(cloud.devices);
+        })
+        .catch(() => {
+          // Offline/local mode keeps the cached state below.
+        });
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    void (async () => {
+      for (const fuel of ["electricity", "gas"] as const) {
+        try {
+          const data = await getConsumption(fuel, 31);
+          if (!cancelled) await saveConsumption(user.id, fuel, data.points ?? []);
+        } catch {
+          // The Home chart still uses the live reading if the save fails.
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
+  const loadState = async () => {
+    try {
+      const stored = await AsyncStorage.getItem("aura_device_states");
+      if (stored) {
+        const states: Record<string, boolean> = JSON.parse(stored);
+        setDevices((prev) =>
+          prev.map((d) => ({ ...d, isOn: states[d.id] ?? d.isOn }))
+        );
+      }
+      const profile = await AsyncStorage.getItem("aura_energy_profile");
+      if (profile)
+        setEnergyProfileState({ ...DEFAULT_PROFILE, ...JSON.parse(profile) });
+      const temp = await AsyncStorage.getItem("aura_thermostat_temp");
+      if (temp) setThermostatTempState(Number(temp));
+      const mode = await AsyncStorage.getItem("aura_thermostat_mode");
+      if (mode)
+        setThermostatModeState(mode as "cool" | "heat" | "fan" | "off");
+    } catch {}
+  };
+
+  const addDevice = (input: {
+    name: string;
+    category: Device["category"];
+    icon: string;
+    room?: string;
+  }) => {
+    const device: Device = {
+      id: Date.now().toString(),
+      name: input.name.trim(),
+      category: input.category,
+      isOn: false,
+      powerDraw: 0,
+      icon: input.icon,
+      room: input.room?.trim() || "Home",
+    };
+    if (!device.name) return;
+    setDevices((prev) => {
+      const updated = [...prev, device];
+      if (user) void saveDevices(user.id, updated);
+      return updated;
+    });
+  };
+
+  const toggleDevice = async (id: string) => {
+    setDevices((prev) => {
+      const updated = prev.map((d) =>
+        d.id === id ? { ...d, isOn: !d.isOn } : d
+      );
+      const states: Record<string, boolean> = {};
+      updated.forEach((d) => {
+        states[d.id] = d.isOn;
+      });
+      AsyncStorage.setItem("aura_device_states", JSON.stringify(states)).catch(
+        () => {}
+      );
+      if (user) void saveDevices(user.id, updated);
+      return updated;
+    });
+  };
+
+  const setEnergyProfile = (patch: Partial<EnergyProfile>) => {
+    setEnergyProfileState((prev) => {
+      const next = { ...prev, ...patch };
+      AsyncStorage.setItem("aura_energy_profile", JSON.stringify(next)).catch(
+        () => {}
+      );
+      if (user) void saveEnergyProfile(user.id, next);
+      return next;
+    });
+  };
+
+  const toggleAutomation = (id: string) => {
+    setAutomations((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, isEnabled: !a.isEnabled } : a))
+    );
+  };
+
+  const setThermostatTemp = (temp: number) => {
+    setThermostatTempState(temp);
+    AsyncStorage.setItem("aura_thermostat_temp", String(temp)).catch(() => {});
+  };
+
+  const setThermostatMode = (mode: "cool" | "heat" | "fan" | "off") => {
+    setThermostatModeState(mode);
+    AsyncStorage.setItem("aura_thermostat_mode", mode).catch(() => {});
+  };
+
+  const electricityQuery = useQuery({
+    queryKey: ["consumption", user?.id, "electricity", 7],
+    queryFn: () => getConsumption("electricity", 7),
+    enabled: true,
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
+  });
+  const gasQuery = useQuery({
+    queryKey: ["consumption", user?.id, "gas", 7],
+    queryFn: () => getConsumption("gas", 7),
+    enabled: true,
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
+  });
+  const prepayQuery = useQuery({
+    queryKey: ["prepay-balances"],
+    queryFn: getPrepayBalances,
+    enabled: true,
+    retry: 1,
+    staleTime: 60 * 1000,
+  });
+
+  const elecPoints = electricityQuery.data?.points ?? [];
+  const gasPoints = gasQuery.data?.points ?? [];
+
+  // Align both fuels onto a single date axis so the charts always have matching
+  // series lengths and labels, regardless of per-fuel gaps.
+  const elecByDate = new Map(elecPoints.map((p) => [p.date, p.consumption]));
+  const gasByDate = new Map(gasPoints.map((p) => [p.date, p.consumption]));
+  const liveDates = [
+    ...new Set([...elecByDate.keys(), ...gasByDate.keys()]),
+  ].sort();
+  const hasLiveData = liveDates.length > 0;
+
+  const electricityWeekly = hasLiveData
+    ? liveDates.map((d) => elecByDate.get(d) ?? 0)
+    : SAMPLE_ELEC_WEEK;
+  const gasWeekly = hasLiveData
+    ? liveDates.map((d) => gasByDate.get(d) ?? 0)
+    : SAMPLE_GAS_WEEK;
+  const weekLabels = hasLiveData
+    ? liveDates.map((d) => WEEKDAY[new Date(d + "T00:00:00Z").getUTCDay()])
+    : FALLBACK_LABELS;
+
+  const electricityToday =
+    electricityWeekly.length > 0
+      ? electricityWeekly[electricityWeekly.length - 1]
+      : null;
+  const gasToday =
+    gasWeekly.length > 0 ? gasWeekly[gasWeekly.length - 1] : null;
+
+  const consumptionLoading = electricityQuery.isLoading || gasQuery.isLoading;
+  const consumptionError = electricityQuery.isError || gasQuery.isError;
+  const isSampleData = !hasLiveData;
+
+  const activeDevices = devices.filter((d) => d.isOn);
+  const currentUsage =
+    activeDevices.reduce((sum, d) => sum + d.powerDraw, 0) / 1000;
+  const maxUsage = 7.4;
+  const usagePercent = Math.min(currentUsage / maxUsage, 1);
+
+  return (
+    <EnergyContext.Provider
+      value={{
+        energyProfile,
+        setEnergyProfile,
+        devices,
+        addDevice,
+        toggleDevice,
+        recommendations: RECOMMENDATIONS,
+        activity: ACTIVITY,
+        automations,
+        toggleAutomation,
+        currentUsage,
+        usagePercent,
+        moneySaved: 38.5,
+        carbonOffset: 18.2,
+        weeklyData: electricityWeekly,
+        electricityToday,
+        gasToday,
+        electricityWeekly,
+        gasWeekly,
+        weekLabels,
+        consumptionLoading,
+        consumptionError,
+        isSampleData,
+        electricityBalance: prepayQuery.data?.electricity ?? null,
+        gasBalance: prepayQuery.data?.gas ?? null,
+        thermostatTemp,
+        setThermostatTemp,
+        thermostatMode,
+        setThermostatMode,
+      }}
+    >
+      {children}
+    </EnergyContext.Provider>
+  );
+}
+
+export function useEnergy() {
+  const ctx = useContext(EnergyContext);
+  if (!ctx) throw new Error("useEnergy must be used within EnergyProvider");
+  return ctx;
+}
