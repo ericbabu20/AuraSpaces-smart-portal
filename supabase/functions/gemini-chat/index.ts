@@ -105,7 +105,7 @@ Deno.serve(async (req) => {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    const apiKey = Deno.env.get("GEMINI_API_KEY");
+    const apiKey = await loadGeminiKey(admin);
     const model = Deno.env.get("GEMINI_MODEL") || "gemini-2.5-flash";
     if (!apiKey) throw new HttpError(503, "Aura AI has not been configured yet.");
 
@@ -128,10 +128,13 @@ Deno.serve(async (req) => {
       }));
 
     const response = await fetchWithTimeout(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemPrompt }] },
           contents,
@@ -179,6 +182,14 @@ Deno.serve(async (req) => {
     return safeError(error);
   }
 });
+
+async function loadGeminiKey(admin: SupabaseClient) {
+  const fromEnv = Deno.env.get("GEMINI_API_KEY");
+  if (fromEnv) return fromEnv;
+  const { data, error } = await admin.rpc("get_gemini_api_key");
+  if (error || typeof data !== "string" || !data) return null;
+  return data;
+}
 
 async function assertSessionOwner(
   admin: SupabaseClient,
