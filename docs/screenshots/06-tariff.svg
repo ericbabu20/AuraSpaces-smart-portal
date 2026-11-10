@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="760" viewBox="0 0 420 760" role="img" aria-label="Import tariff screenshot placeholder">
+  <rect width="420" height="760" rx="28" fill="#1C1B17"/>
+  <rect x="18" y="18" width="384" height="724" rx="20" fill="#26241F" stroke="#3A3832"/>
+  <circle cx="42" cy="46" r="8" fill="#D97A43"/>
+  <text x="60" y="52" fill="#F4EFE6" font-family="Georgia, serif" font-size="18">Aura Spaces</text>
+  <text x="392" y="52" fill="#A39B8E" font-family="system-ui, sans-serif" font-size="12" text-anchor="end">screenshot placeholder</text>
+  <rect x="36" y="84" width="348" height="72" rx="14" fill="#312E28"/>
+  <rect x="52" y="104" width="120" height="12" rx="6" fill="#D97A43"/>
+  <rect x="52" y="126" width="220" height="10" rx="5" fill="#5C574E"/>
+  <rect x="36" y="172" width="166" height="530" rx="14" fill="#312E28"/>
+  <rect x="218" y="172" width="166" height="140" rx="14" fill="#312E28"/>
+  <rect x="218" y="328" width="166" height="374" rx="14" fill="#3A2A22" stroke="#D97A43" stroke-opacity="0.7"/>
+  <text x="210.0" y="682" fill="#F4EFE6" font-family="system-ui, sans-serif" font-size="20" font-weight="600" text-anchor="middle">Import tariff</text>
+  <text x="210.0" y="708" fill="#A39B8E" font-family="system-ui, sans-serif" font-size="13" text-anchor="middle">Octopus Go rates and supplier compare</text>
+</svg>
